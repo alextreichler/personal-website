@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{template "title" .}} - My Personal Website</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <!-- Admin link will be added later -->
+        </nav>
+    </header>
+
+    <main>
+        {{template "content" .}}
+    </main>
+
+    <footer>
+        <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved.</p>
+    </footer>
+</body>
+</html>
