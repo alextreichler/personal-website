@@ -8,6 +8,8 @@
     <title>{{if .PageTitle}}{{.PageTitle}} - {{end}}Alex Treichler</title>
     <meta name="description" content="{{if .MetaDescription}}{{.MetaDescription}}{{else}}Personal website and blog of Alex Treichler.{{end}}">
     
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}Alex Treichler{{end}}">
@@ -30,7 +32,18 @@
     <header class="site-header">
         <div class="container">
             <nav>
-                <a href="/">Home</a>
+                <a href="/" class="site-logo-link">
+                    <svg width="230" height="30" viewBox="0 0 230 30" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Graphic Icon: Stylized 'AT' Monogram -->
+                        <circle cx="15" cy="15" r="12" fill="currentColor" opacity="0.2"/>
+                        <g fill="currentColor" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="bold" text-anchor="middle">
+                            <text x="15" y="19">AT</text>
+                        </g>
+                        
+                        <!-- Text -->
+                        <text x="38" y="22" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="bold" fill="currentColor">alextreichler.com</text>
+                    </svg>
+                </a>
                 {{if .IsLoggedIn}}
                     <span style="float: right;">
                         <a href="/admin/dashboard" style="margin-right: 15px;">Admin</a>
