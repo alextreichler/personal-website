@@ -5,5 +5,14 @@ import (
 )
 
 func (app *App) AdminDashboard(w http.ResponseWriter, r *http.Request) {
-	app.Templates.ExecuteTemplate(w, "dashboard.html", nil)
+	username := "Admin"
+	if cookie, err := r.Cookie("admin_session"); err == nil {
+		username = cookie.Value
+	}
+	
+	data := map[string]interface{}{
+		"Username": username,
+	}
+	
+	app.Render(w, "dashboard.html", data)
 }

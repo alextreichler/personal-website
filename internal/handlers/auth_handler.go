@@ -8,7 +8,7 @@ import (
 )
 
 func (app *App) Login(w http.ResponseWriter, r *http.Request) {
-	app.Templates.ExecuteTemplate(w, "login.html", nil)
+	app.Render(w, "login.html", nil)
 }
 
 func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +30,7 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// Set a simple session cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "admin_session",
-		Value:    "logged_in", // In a real app, use a secure token
+		Value:    username, // Storing username for display
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add(24 * time.Hour),

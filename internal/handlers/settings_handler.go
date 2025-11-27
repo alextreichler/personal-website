@@ -15,7 +15,7 @@ func (app *App) AdminEditAbout(w http.ResponseWriter, r *http.Request) {
 		"Content": aboutContent,
 	}
 
-	app.Templates.ExecuteTemplate(w, "admin_about.html", data)
+	app.Render(w, "admin_about.html", data)
 }
 
 func (app *App) AdminUpdateAbout(w http.ResponseWriter, r *http.Request) {

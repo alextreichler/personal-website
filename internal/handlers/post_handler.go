@@ -34,7 +34,7 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 		"ContentHTML": template.HTML(buf.String()),
 	}
 
-	app.Templates.ExecuteTemplate(w, "post.html", data)
+	app.Render(w, "post.html", data)
 }
 
 func (app *App) AdminListPosts(w http.ResponseWriter, r *http.Request) {
@@ -48,11 +48,11 @@ func (app *App) AdminListPosts(w http.ResponseWriter, r *http.Request) {
 		"Posts": posts,
 	}
 
-	app.Templates.ExecuteTemplate(w, "admin_posts.html", data)
+	app.Render(w, "admin_posts.html", data)
 }
 
 func (app *App) AdminNewPost(w http.ResponseWriter, r *http.Request) {
-	app.Templates.ExecuteTemplate(w, "admin_post_new.html", nil)
+	app.Render(w, "admin_post_new.html", nil)
 }
 
 func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +110,7 @@ func (app *App) AdminEditPost(w http.ResponseWriter, r *http.Request) {
 		"Post": post,
 	}
 
-	app.Templates.ExecuteTemplate(w, "admin_post_edit.html", data)
+	app.Render(w, "admin_post_edit.html", data)
 }
 
 func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {

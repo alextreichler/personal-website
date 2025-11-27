@@ -29,7 +29,7 @@ func routes(app *handlers.App) *http.ServeMux {
 	mux.HandleFunc("POST /admin/about", middleware.AuthMiddleware(app.AdminUpdateAbout))
 	
 	// Static File Server
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
 
 	return mux
 }
