@@ -8,6 +8,8 @@
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Status</th>
+                <th>Views</th>
                 <th>Created At</th>
                 <th>Actions</th>
             </tr>
@@ -16,6 +18,14 @@
             {{range .Posts}}
             <tr>
                 <td>{{.Title}}</td>
+                <td>
+                    {{if eq .Status "published"}}
+                        <span style="color: green;">Published</span>
+                    {{else}}
+                        <span style="color: orange;">Draft</span>
+                    {{end}}
+                </td>
+                <td>{{.Views}}</td>
                 <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
                 <td>
                     <a href="/admin/posts/edit?id={{.ID}}">Edit</a> | 
@@ -24,7 +34,7 @@
             </tr>
             {{else}}
             <tr>
-                <td colspan="3">No posts found.</td>
+                <td colspan="4">No posts found.</td>
             </tr>
             {{end}}
         </tbody>

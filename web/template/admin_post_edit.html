@@ -13,6 +13,13 @@
             <input type="text" id="slug" name="slug" value="{{.Post.Slug}}">
         </div>
         <div>
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="draft" {{if eq .Post.Status "draft"}}selected{{end}}>Draft</option>
+                <option value="published" {{if eq .Post.Status "published"}}selected{{end}}>Published</option>
+            </select>
+        </div>
+        <div>
             <label for="content">Content (Markdown):</label>
             <textarea id="content" name="content" rows="10" required>{{.Post.Content}}</textarea>
         </div>

@@ -65,6 +65,10 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	content := r.FormValue("content")
 	slug := r.FormValue("slug")
+	status := r.FormValue("status")
+	if status == "" {
+		status = "draft" // Default to draft if not specified
+	}
 
 	// Simple slug generation if empty
 	if slug == "" {
@@ -75,6 +79,7 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 		Title:     title,
 		Slug:      slug,
 		Content:   content,
+		Status:    status,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -132,6 +137,7 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	post.Title = r.FormValue("title")
 	post.Slug = r.FormValue("slug")
+	post.Status = r.FormValue("status")
 	if post.Slug == "" {
 		post.Slug = slugify(post.Title)
 	}
