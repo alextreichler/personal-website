@@ -21,6 +21,7 @@ func NewApp(db *repository.Database) *App {
 	tmpl := template.Must(template.ParseFiles(
 		"web/template/base.html",
 		"web/template/home.html",
+		"web/template/login.html",
 		// Add other templates here as they are created
 	))
 

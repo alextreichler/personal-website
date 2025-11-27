@@ -60,5 +60,5 @@ Adhering to [golang-standards/project-layout](https://github.com/golang-standard
 -   [x] **Database**: SQLite setup and schema migration.
 -   [x] **Backend Core**: Basic HTTP server and routing.
 -   [x] **Frontend**: Base templates and home page rendering.
--   [ ] **Admin System**: Auth middleware and login page.
+-   [in_progress] **Admin System**: Auth middleware and login page.
 -   [ ] **Blog System**: CRUD handlers and Markdown rendering.

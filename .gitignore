@@ -1,0 +1,23 @@
+# Binaries
+/bin/
+server
+admin
+*.exe
+*.test
+
+# Database
+/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# OS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
