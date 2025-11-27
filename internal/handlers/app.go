@@ -54,7 +54,7 @@ func NewApp(db *repository.Database) *App {
 	}
 }
 
-func (app *App) Render(w http.ResponseWriter, name string, data interface{}) {
+func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
 	ts, ok := app.TemplateCache[name]
 	if !ok {
 		http.Error(w, "Template not found", http.StatusInternalServerError)
@@ -66,6 +66,16 @@ func (app *App) Render(w http.ResponseWriter, name string, data interface{}) {
 	if dataMap, ok := data.(map[string]interface{}); ok {
 		if _, exists := dataMap["CurrentYear"]; !exists {
 			dataMap["CurrentYear"] = time.Now().Year()
+		}
+
+		// Inject login status
+		cookie, err := r.Cookie("admin_session")
+		if err == nil && cookie.Value != "" {
+			dataMap["IsLoggedIn"] = true
+			dataMap["Username"] = cookie.Value
+		} else {
+			dataMap["IsLoggedIn"] = false
+			dataMap["Username"] = ""
 		}
 	}
 
@@ -100,10 +110,18 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error rendering about markdown: %v", err)
 	}
 
-	data := map[string]interface{}{
-		"Posts":     posts,
-		"AboutHTML": template.HTML(aboutBuf.String()),
+		data := map[string]interface{}{
+
+			"Posts":     posts,
+
+			"AboutHTML": template.HTML(aboutBuf.String()),
+
+		}
+
+	
+
+		app.Render(w, r, "home.html", data)
+
 	}
 
-	app.Render(w, "home.html", data)
-}
+	

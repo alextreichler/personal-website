@@ -8,7 +8,7 @@ import (
 )
 
 func (app *App) Login(w http.ResponseWriter, r *http.Request) {
-	app.Render(w, "login.html", nil)
+	app.Render(w, r, "login.html", nil)
 }
 
 func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
