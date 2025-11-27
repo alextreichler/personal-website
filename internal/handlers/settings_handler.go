@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func (app *App) AdminUpdateAbout(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	err = app.DB.UpdateSetting("about", content)
 	if err != nil {
-		log.Printf("Error updating about setting: %v", err)
+		slog.Error("Error updating about setting", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

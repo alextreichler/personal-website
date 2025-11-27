@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -24,14 +24,22 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 
 	var buf bytes.Buffer
 	if err := goldmark.Convert([]byte(post.Content), &buf); err != nil {
-		log.Printf("Error rendering markdown: %v", err)
+		slog.Error("Error rendering markdown", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
+	// Create description snippet (first 150 chars)
+	desc := post.Content
+	if len(desc) > 150 {
+		desc = desc[:150] + "..."
+	}
+
 	data := map[string]interface{}{
-		"Post":        post,
-		"ContentHTML": template.HTML(buf.String()),
+		"Post":            post,
+		"ContentHTML":     template.HTML(buf.String()),
+		"PageTitle":       post.Title,
+		"MetaDescription": desc,
 	}
 
 	app.Render(w, r, "post.html", data)
@@ -82,11 +90,12 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 		Status:    status,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+		Views:     0,
 	}
 
 	err = app.DB.CreatePost(post)
 	if err != nil {
-		log.Printf("Error creating post: %v", err)
+		slog.Error("Error creating post", "error", err)
 		http.Error(w, "Error creating post", http.StatusInternalServerError)
 		return
 	}
@@ -146,7 +155,7 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	err = app.DB.UpdatePost(post)
 	if err != nil {
-		log.Printf("Error updating post: %v", err)
+		slog.Error("Error updating post", "error", err)
 		http.Error(w, "Error updating post", http.StatusInternalServerError)
 		return
 	}
@@ -161,7 +170,7 @@ func (app *App) AdminDeletePost(w http.ResponseWriter, r *http.Request) {
 
 	err := app.DB.DeletePost(id)
 	if err != nil {
-		log.Printf("Error deleting post: %v", err)
+		slog.Error("Error deleting post", "error", err)
 		http.Error(w, "Error deleting post", http.StatusInternalServerError)
 		return
 	}

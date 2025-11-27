@@ -1,12 +1,12 @@
 :root {
-    /* Light Theme Variables */
-    --bg-color: #fcfcfc;
-    --card-bg: #ffffff;
-    --text-color: #1a1a1a;
-    --text-light: #666666;
-    --accent-color: #4f46e5; /* Electric Indigo */
-    --accent-hover: #4338ca;
-    --border-color: #e5e7eb;
+    /* --- Earth & Logic Theme (Light) --- */
+    --bg-color: #fdfcf8;      /* Warm Off-White */
+    --card-bg: #ffffff;       /* Pure White */
+    --text-color: #2d2d2d;    /* Soft Charcoal */
+    --text-light: #5a5a5a;    /* Lighter Charcoal for secondary text */
+    --accent-color: #e76f51;  /* Burnt Orange */
+    --accent-hover: #e05e3f;
+    --border-color: #e0e0e0;
     --shadow-color: rgba(0, 0, 0, 0.05);
     
     --radius-sm: 8px;
@@ -18,14 +18,15 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-color: #111111;
-        --card-bg: #1c1c1c;
-        --text-color: #ededed;
-        --text-light: #a1a1a1;
-        --accent-color: #818cf8;
-        --accent-hover: #6366f1;
-        --border-color: #333333;
-        --shadow-color: rgba(0, 0, 0, 0.5);
+        /* --- Earth & Logic Theme (Dark) --- */
+        --bg-color: #1a1a1a;      /* Deep Charcoal */
+        --card-bg: #2d2d2d;       /* Slightly lighter Charcoal */
+        --text-color: #f0f0f0;    /* Light Grey */
+        --text-light: #b0b0b0;    /* Muted Grey */
+        --accent-color: #e76f51;  /* Burnt Orange (same accent) */
+        --accent-hover: #e05e3f;
+        --border-color: #404040;
+        --shadow-color: rgba(0, 0, 0, 0.3);
     }
 }
 
@@ -35,31 +36,154 @@ body {
     color: var(--text-color);
     line-height: 1.7;
     margin: 0;
-    padding: 0;
+    padding: 0; /* Remove body padding here, container will handle it */
     -webkit-font-smoothing: antialiased;
+    position: relative; /* For z-index context */
 }
 
-/* Layout Container */
+/* Background Animation */
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25; /* Much more subtle */
+    animation: drift 25s infinite alternate ease-in-out;
+}
+
+/* ... (orb-1 and orb-2 definitions stay, drift keyframes stay) ... */
+
+/* Micro-Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Animated Link Underline (for text links) */
+.content p a {
+    position: relative;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    background-image: linear-gradient(var(--accent-color), var(--accent-color));
+    background-position: 0% 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 2px;
+    transition: background-size 0.3s;
+}
+
+.content p a:hover {
+    background-size: 100% 100%; /* Full highlight on hover */
+    color: white;
+}
+
+/* Refined Card Hover */
+.post-list-item {
+    /* ... existing styles ... */
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+}
+
+
+.orb-1 {
+    width: 70vw;
+    height: 70vw;
+    top: -20%;
+    left: -20%;
+    background: radial-gradient(circle, var(--accent-color), transparent 70%);
+    animation-duration: 20s;
+}
+
+.orb-2 {
+    width: 60vw;
+    height: 60vw;
+    bottom: -20%;
+    right: -20%;
+    background: radial-gradient(circle, #ffb700, transparent 70%); /* Brighter Gold */
+    animation-duration: 25s;
+    animation-delay: -5s;
+}
+
+@keyframes drift {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    33% { transform: translate(100px, 50px) scale(1.2) rotate(10deg); }
+    66% { transform: translate(-50px, 100px) scale(0.9) rotate(-5deg); }
+    100% { transform: translate(20px, -40px) scale(1.1) rotate(5deg); }
+}
+
+/* Status Labels */
+.status-published {
+    color: #10b981; /* Emerald Green */
+    font-weight: 600;
+}
+.status-draft {
+    color: #ea580c; /* Darker Orange/Rust for readability */
+    font-weight: 600;
+}
+
+/* Layout Container - now wraps main content only */
 .container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 40px 20px;
-}
-
-    padding: 40px 20px;
+    padding: 0 20px; /* Horizontal padding only, header/footer handle vertical */
 }
 
 /* Header & Nav */
 .site-header {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 20px;
+    width: 100%;
+    background: transparent; /* Match page background */
+    color: var(--text-color);
+    padding: 30px 0;
     margin-bottom: 40px;
-    display: flex;
-    flex-direction: column; /* Changed to column to allow nav to be full width */
-    align-items: center; /* Center items horizontally */
+    box-shadow: none; /* Remove shadow */
+    border-bottom: 1px solid var(--border-color); /* Subtle separator */
 }
 
-nav {
+.site-header nav a {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: var(--card-bg); /* Button background */
+    border: 1px solid var(--border-color);
+    border-radius: 50px; /* Pill shape */
+    color: var(--text-color);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.site-header nav a:hover {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+/* Nav inside header needs to be within its own container */
+.site-header .container nav {
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -3,28 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{template "title" .}} - My Personal Website</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>{{if .PageTitle}}{{.PageTitle}} - {{end}}Alex Treichler</title>
+    <meta name="description" content="{{if .MetaDescription}}{{.MetaDescription}}{{else}}Personal website and blog of Alex Treichler.{{end}}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}Alex Treichler{{end}}">
+    <meta property="og:description" content="{{if .MetaDescription}}{{.MetaDescription}}{{else}}Personal website and blog of Alex Treichler.{{end}}">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}Alex Treichler{{end}}">
+    <meta name="twitter:description" content="{{if .MetaDescription}}{{.MetaDescription}}{{else}}Personal website and blog of Alex Treichler.{{end}}">
+
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml">
 </head>
 <body>
-    <div class="container">
-        <header class="site-header">
+    <div class="background-animation">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <header class="site-header">
+        <div class="container">
             <nav>
                 <a href="/">Home</a>
                 {{if .IsLoggedIn}}
-                    <a href="/logout" style="float: right;">Logout ({{.Username}})</a>
+                    <span style="float: right;">
+                        <a href="/admin/dashboard" style="margin-right: 15px;">Admin</a>
+                        <a href="/logout">Logout ({{.Username}})</a>
+                    </span>
                 {{else}}
                     <a href="/admin" style="float: right;">Login</a>
                 {{end}}
             </nav>
-        </header>
+        </div>
+    </header>
 
+    <div class="container">
         <main>
             {{template "content" .}}
         </main>
 
         <footer>
-            <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved.</p>
+            <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved. | <a href="/rss.xml">RSS Feed</a></p>
         </footer>
     </div>
 </body>
