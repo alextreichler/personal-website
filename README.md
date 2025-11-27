@@ -1,8 +1,6 @@
 # Personal Website & Blog (Go)
 
-This is your very own, personal website and blog, built from the ground up with Go (Golang). My main goal here was to give you a straightforward, self-hosted solution where you have absolute, 100% control over everything – from your content to how and where it's deployed.
-
-It comes with a public blog/portfolio for the world to see, plus a secure admin dashboard where you can easily manage all your posts and settings.
+This is my very own, personal website and blog, built from the ground up with Go (Golang). My main goal here was to create a straightforward, self-hosted solution where I have absolute, 100% control over everything – from my content to how and where it's deployed.
 
 ## Features
 
