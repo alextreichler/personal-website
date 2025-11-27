@@ -31,7 +31,7 @@ func (app *App) AdminMediaManager(w http.ResponseWriter, r *http.Request) {
 		"Images": images,
 	}
 
-	app.Render(w, "admin_media.html", data)
+	app.Render(w, r, "admin_media.html", data)
 }
 
 func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {

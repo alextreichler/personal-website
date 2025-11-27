@@ -11,7 +11,11 @@
         <header class="site-header">
             <nav>
                 <a href="/">Home</a>
-                <a href="/admin">Admin Login</a>
+                {{if .IsLoggedIn}}
+                    <a href="/logout" style="float: right;">Logout ({{.Username}})</a>
+                {{else}}
+                    <a href="/admin" style="float: right;">Login</a>
+                {{end}}
             </nav>
         </header>
 

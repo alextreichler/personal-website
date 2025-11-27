@@ -14,5 +14,5 @@ func (app *App) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 		"Username": username,
 	}
 	
-	app.Render(w, "dashboard.html", data)
+	app.Render(w, r, "dashboard.html", data)
 }
