@@ -1,9 +1,8 @@
 # Personal Website & Blog (Go)
 
-A lightweight, clean, and performant personal website and blog engine built with Go (Golang).
-**Goal**: To provide a simple, self-hosted website solution with 100% full control over content and deployment.
+This is your very own, personal website and blog, built from the ground up with Go (Golang). My main goal here was to give you a straightforward, self-hosted solution where you have absolute, 100% control over everything – from your content to how and where it's deployed.
 
-It features a public-facing portfolio/blog and a secure admin dashboard for content management.
+It comes with a public blog/portfolio for the world to see, plus a secure admin dashboard where you can easily manage all your posts and settings.
 
 ## Features
 
