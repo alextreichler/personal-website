@@ -161,25 +161,75 @@ main {
 .site-header nav a {
     display: inline-block;
     padding: 8px 20px;
-    background-color: var(--card-bg); /* Button background */
-    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    /* Remove border: 1px solid var(--border-color); */
     border-radius: 50px; /* Pill shape */
     color: var(--text-color);
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     font-size: 0.85rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     text-decoration: none;
-    box-shadow: 0 2px 4px var(--shadow-color);
+    
+    /* 3D Effect */
+    box-shadow: 
+        0 3px 6px var(--shadow-color),
+        0 1px 3px rgba(0, 0, 0, 0.08);
+    transform: translateY(0);
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes sunRays {
+    0% {
+        box-shadow: 
+            0 0 0 0 rgba(231, 111, 81, 0.7),
+            0 0 0 0 rgba(231, 111, 81, 0.4);
+    }
+    100% {
+        box-shadow: 
+            0 0 0 10px rgba(231, 111, 81, 0),
+            0 0 0 20px rgba(231, 111, 81, 0);
+    }
 }
 
 .site-header nav a:hover {
     background-color: var(--accent-color);
     color: #ffffff;
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-color);
+    transform: translateY(-3px) scale(1.02);
+    /* Apply the sun rays animation */
+    animation: sunRays 1.5s infinite;
+}
+
+.site-header nav a:active {
+    transform: translateY(-1px) scale(0.98); /* Simulate press with slight scale down */
+    animation: none; /* Stop rays on click */
+}
+
+@keyframes postHighlightGlow {
+    0% {
+        box-shadow: 
+            0 4px 8px var(--shadow-color), /* Keep existing shadow */
+            0 0 0 0 rgba(231, 111, 81, 0.3); /* Subtle accent glow start */
+    }
+    50% {
+        box-shadow: 
+            0 4px 8px var(--shadow-color),
+            0 0 0 5px rgba(231, 111, 81, 0.1); /* Glow expands and fades */
+    }
+    100% {
+        box-shadow: 
+            0 4px 8px var(--shadow-color),
+            0 0 0 0 rgba(231, 111, 81, 0); /* Glow fades out */
+    }
+}
+
+/* Post List Item Hover */
+.post-list-item:hover {
+    transform: translateY(-2px); /* Lift slightly */
+    border-color: var(--accent-color); /* Highlight border */
+    animation: postHighlightGlow 1.5s ease-out infinite; /* Apply subtle glow */
 }
 
 /* Nav inside header needs to be within its own container */
