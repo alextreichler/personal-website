@@ -3,8 +3,9 @@ package handlers
 import (
 	"bytes"
 	"html/template"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alextreichler/personal-website/internal/repository"
@@ -42,7 +43,8 @@ func NewApp(db *repository.Database) *App {
 		// potential for unexpected behavior with ParseFiles in this context.
 		ts, err := template.ParseFiles("web/template/base.html", "web/template/"+page)
 		if err != nil {
-			log.Fatalf("Error parsing template %s: %v", name, err)
+			slog.Error("Error parsing template", "name", name, "error", err)
+			os.Exit(1)
 		}
 
 		cache[name] = ts
@@ -58,7 +60,7 @@ func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data
 	ts, ok := app.TemplateCache[name]
 	if !ok {
 		http.Error(w, "Template not found", http.StatusInternalServerError)
-		log.Printf("Template not found in cache: %s", name)
+		slog.Error("Template not found in cache", "name", name)
 		return
 	}
 
@@ -82,7 +84,7 @@ func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data
 	// Execute "base.html" which is the layout
 	err := ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("Error rendering template %s: %v", name, err)
+		slog.Error("Error rendering template", "name", name, "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
@@ -95,7 +97,7 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 
 	posts, err := app.DB.GetPublishedPosts()
 	if err != nil {
-		log.Printf("Error fetching posts: %v", err)
+		slog.Error("Error fetching posts", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -107,21 +109,18 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 
 	var aboutBuf bytes.Buffer
 	if err := goldmark.Convert([]byte(aboutContent), &aboutBuf); err != nil {
-		log.Printf("Error rendering about markdown: %v", err)
+		slog.Error("Error rendering about markdown", "error", err)
 	}
 
-		data := map[string]interface{}{
-
-			"Posts":     posts,
-
-			"AboutHTML": template.HTML(aboutBuf.String()),
-
-		}
-
-	
-
-		app.Render(w, r, "home.html", data)
-
+	data := map[string]interface{}{
+		"Posts":           posts,
+		"AboutHTML":       template.HTML(aboutBuf.String()),
+		"PageTitle":       "Home",
+		"MetaDescription": "Welcome to the personal website and blog of Alex Treichler. Read my latest thoughts on technology and more.",
 	}
+
+	app.Render(w, r, "home.html", data)
+}
+
 
 	

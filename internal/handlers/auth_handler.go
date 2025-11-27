@@ -8,7 +8,10 @@ import (
 )
 
 func (app *App) Login(w http.ResponseWriter, r *http.Request) {
-	app.Render(w, r, "login.html", nil)
+	data := map[string]interface{}{
+		"PageTitle": "Login",
+	}
+	app.Render(w, r, "login.html", data)
 }
 
 func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {

@@ -15,6 +15,7 @@ func routes(app *handlers.App) *http.ServeMux {
 	mux.HandleFunc("POST /admin", app.LoginPost)
 	mux.HandleFunc("GET /logout", app.Logout)
 	mux.HandleFunc("GET /post/", app.ViewPost)
+	mux.HandleFunc("GET /rss.xml", app.RSSFeed)
 
 	// Protected Admin Routes
 	mux.HandleFunc("GET /admin/dashboard", middleware.AuthMiddleware(app.AdminDashboard))

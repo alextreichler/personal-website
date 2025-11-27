@@ -20,9 +20,9 @@
                 <td>{{.Title}}</td>
                 <td>
                     {{if eq .Status "published"}}
-                        <span style="color: green;">Published</span>
+                        <span class="status-published">Published</span>
                     {{else}}
-                        <span style="color: orange;">Draft</span>
+                        <span class="status-draft">Draft</span>
                     {{end}}
                 </td>
                 <td>{{.Views}}</td>

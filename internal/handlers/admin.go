@@ -11,7 +11,8 @@ func (app *App) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	data := map[string]interface{}{
-		"Username": username,
+		"Username":  username,
+		"PageTitle": "Dashboard",
 	}
 	
 	app.Render(w, r, "dashboard.html", data)

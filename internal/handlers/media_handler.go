@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,7 +15,7 @@ func (app *App) AdminMediaManager(w http.ResponseWriter, r *http.Request) {
 	// List files in uploads directory
 	files, err := os.ReadDir("web/static/uploads")
 	if err != nil {
-		log.Printf("Error reading uploads dir: %v", err)
+		slog.Error("Error reading uploads dir", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -40,7 +40,7 @@ func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 
 	file, handler, err := r.FormFile("image")
 	if err != nil {
-		log.Printf("Error retrieving file: %v", err)
+		slog.Error("Error retrieving file", "error", err)
 		http.Redirect(w, r, "/admin/media", http.StatusSeeOther)
 		return
 	}
@@ -60,7 +60,7 @@ func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 	// Create destination file
 	dst, err := os.Create(filePath)
 	if err != nil {
-		log.Printf("Error creating file: %v", err)
+		slog.Error("Error creating file", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -68,7 +68,7 @@ func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 
 	// Copy contents
 	if _, err := io.Copy(dst, file); err != nil {
-		log.Printf("Error copying file: %v", err)
+		slog.Error("Error copying file", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
