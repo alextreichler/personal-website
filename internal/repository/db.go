@@ -48,7 +48,8 @@ func (d *Database) Migrate() error {
 		content TEXT NOT NULL,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		deleted_at DATETIME
+		deleted_at DATETIME,
+		status TEXT DEFAULT 'published'
 	);
 
 	CREATE TABLE IF NOT EXISTS settings (
@@ -60,6 +61,97 @@ func (d *Database) Migrate() error {
 	`
 
 	_, err := d.Conn.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	// Migration for existing databases (try to add column, ignore error if exists)
+	d.Conn.Exec(`ALTER TABLE posts ADD COLUMN status TEXT DEFAULT 'published'`)
+	d.Conn.Exec(`ALTER TABLE posts ADD COLUMN views INTEGER DEFAULT 0`)
+
+	return nil
+}
+
+func (d *Database) GetAllPosts() ([]*models.Post, error) {
+	query := `SELECT id, title, slug, content, status, views, created_at, updated_at FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC`
+	rows, err := d.Conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []*models.Post
+	for rows.Next() {
+		post := &models.Post{}
+		if err := rows.Scan(&post.ID, &post.Title, &post.Slug, &post.Content, &post.Status, &post.Views, &post.CreatedAt, &post.UpdatedAt); err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func (d *Database) GetPublishedPosts() ([]*models.Post, error) {
+	query := `SELECT id, title, slug, content, status, created_at, updated_at FROM posts WHERE deleted_at IS NULL AND status = 'published' ORDER BY created_at DESC`
+	rows, err := d.Conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []*models.Post
+	for rows.Next() {
+		post := &models.Post{}
+		if err := rows.Scan(&post.ID, &post.Title, &post.Slug, &post.Content, &post.Status, &post.CreatedAt, &post.UpdatedAt); err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func (d *Database) CreatePost(post *models.Post) error {
+	query := `INSERT INTO posts (title, slug, content, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`
+	_, err := d.Conn.Exec(query, post.Title, post.Slug, post.Content, post.Status, post.CreatedAt, post.UpdatedAt)
+	return err
+}
+
+func (d *Database) GetPostByID(id int) (*models.Post, error) {
+	query := `SELECT id, title, slug, content, status, created_at, updated_at FROM posts WHERE id = ? AND deleted_at IS NULL`
+	row := d.Conn.QueryRow(query, id)
+
+	post := &models.Post{}
+	err := row.Scan(&post.ID, &post.Title, &post.Slug, &post.Content, &post.Status, &post.CreatedAt, &post.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (d *Database) GetPostBySlug(slug string) (*models.Post, error) {
+	// Increment view count
+	_, _ = d.Conn.Exec(`UPDATE posts SET views = views + 1 WHERE slug = ?`, slug)
+
+	query := `SELECT id, title, slug, content, status, views, created_at, updated_at FROM posts WHERE slug = ? AND deleted_at IS NULL AND status = 'published'`
+	row := d.Conn.QueryRow(query, slug)
+
+	post := &models.Post{}
+	err := row.Scan(&post.ID, &post.Title, &post.Slug, &post.Content, &post.Status, &post.Views, &post.CreatedAt, &post.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (d *Database) UpdatePost(post *models.Post) error {
+	query := `UPDATE posts SET title = ?, slug = ?, content = ?, status = ?, updated_at = ? WHERE id = ?`
+	_, err := d.Conn.Exec(query, post.Title, post.Slug, post.Content, post.Status, post.UpdatedAt, post.ID)
+	return err
+}
+
+func (d *Database) DeletePost(id int) error {
+	query := `UPDATE posts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`
+	_, err := d.Conn.Exec(query, id)
 	return err
 }
 
@@ -74,66 +166,5 @@ func (d *Database) GetSetting(key string) (string, error) {
 
 func (d *Database) UpdateSetting(key, value string) error {
 	_, err := d.Conn.Exec("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", key, value)
-	return err
-}
-
-func (d *Database) GetAllPosts() ([]*models.Post, error) {
-	query := `SELECT id, title, slug, created_at, updated_at FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC`
-	rows, err := d.Conn.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var posts []*models.Post
-	for rows.Next() {
-		post := &models.Post{}
-		if err := rows.Scan(&post.ID, &post.Title, &post.Slug, &post.CreatedAt, &post.UpdatedAt); err != nil {
-			return nil, err
-		}
-		posts = append(posts, post)
-	}
-	return posts, nil
-}
-
-func (d *Database) CreatePost(post *models.Post) error {
-	query := `INSERT INTO posts (title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`
-	_, err := d.Conn.Exec(query, post.Title, post.Slug, post.Content, post.CreatedAt, post.UpdatedAt)
-	return err
-}
-
-func (d *Database) GetPostByID(id int) (*models.Post, error) {
-	query := `SELECT id, title, slug, content, created_at, updated_at FROM posts WHERE id = ? AND deleted_at IS NULL`
-	row := d.Conn.QueryRow(query, id)
-
-	post := &models.Post{}
-	err := row.Scan(&post.ID, &post.Title, &post.Slug, &post.Content, &post.CreatedAt, &post.UpdatedAt)
-	if err != nil {
-		return nil, err
-	}
-	return post, nil
-}
-
-func (d *Database) GetPostBySlug(slug string) (*models.Post, error) {
-	query := `SELECT id, title, slug, content, created_at, updated_at FROM posts WHERE slug = ? AND deleted_at IS NULL`
-	row := d.Conn.QueryRow(query, slug)
-
-	post := &models.Post{}
-	err := row.Scan(&post.ID, &post.Title, &post.Slug, &post.Content, &post.CreatedAt, &post.UpdatedAt)
-	if err != nil {
-		return nil, err
-	}
-	return post, nil
-}
-
-func (d *Database) UpdatePost(post *models.Post) error {
-	query := `UPDATE posts SET title = ?, slug = ?, content = ?, updated_at = ? WHERE id = ?`
-	_, err := d.Conn.Exec(query, post.Title, post.Slug, post.Content, post.UpdatedAt, post.ID)
-	return err
-}
-
-func (d *Database) DeletePost(id int) error {
-	query := `UPDATE posts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`
-	_, err := d.Conn.Exec(query, id)
 	return err
 }

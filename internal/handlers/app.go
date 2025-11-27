@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 	"time"
 
 	"github.com/alextreichler/personal-website/internal/repository"
@@ -29,17 +28,19 @@ func NewApp(db *repository.Database) *App {
 		"admin_post_new.html",
 		"admin_post_edit.html",
 		"admin_about.html",
+		"admin_media.html",
 		"post.html",
+		// Add other templates here as they are created
 	}
 
 	for _, page := range pages {
 		name := page
-		files := []string{
-			"web/template/base.html",
-			filepath.Join("web/template", page),
-		}
-
-		ts, err := template.ParseFiles(files...)
+		
+		// Corrected: Ensure paths are explicit relative to the project root.
+		// The error suggests "web/template/" might be prefixed again internally.
+		// By providing the full relative paths directly, we avoid filepath.Join's
+		// potential for unexpected behavior with ParseFiles in this context.
+		ts, err := template.ParseFiles("web/template/base.html", "web/template/"+page)
 		if err != nil {
 			log.Fatalf("Error parsing template %s: %v", name, err)
 		}
@@ -82,7 +83,7 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := app.DB.GetAllPosts()
+	posts, err := app.DB.GetPublishedPosts()
 	if err != nil {
 		log.Printf("Error fetching posts: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

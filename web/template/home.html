@@ -3,34 +3,74 @@
 {{define "content"}}
     <h1>Welcome to My Personal Website!</h1>
     
-    <section class="about">
-        {{.AboutHTML}}
-    </section>
-
-    <hr style="margin: 40px 0;">
-
-    <h2>Latest Blog Posts</h2>
+        <section class="about">
     
-    {{range .Posts}}
-
-        <article style="margin-bottom: 2rem;">
-
-            <header>
-
-                <h3><a href="/post/{{.Slug}}">{{.Title}}</a></h3>
-
-                <small>{{.CreatedAt.Format "Jan 02, 2006"}}</small>
-
-            </header>
-
-        </article>
-
-        {{else}}
-
-        <p>No posts yet.</p>
-
+            {{.AboutHTML}}
+    
+        </section>
+    
+    
+    
+        <h2>Latest Blog Posts</h2>
+    
+        
+    
+            <div class="post-list">
+    
+        
+    
+                {{range .Posts}}
+    
+        
+    
+                <article class="post-list-item">
+    
+        
+    
+                    <header class="post-header">
+    
+        
+    
+                        <h3><a href="/post/{{.Slug}}">{{.Title}}</a></h3>
+    
+        
+    
+                        <time class="post-date">{{.CreatedAt.Format "Jan 02, 2006"}}</time>
+    
+        
+    
+                    </header>
+    
+        
+    
+                </article>
+    
+        
+    
+                {{else}}
+    
+        
+    
+                <p>No posts yet.</p>
+    
+        
+    
+                {{end}}
+    
+        
+    
+            </div>
+    
+        
+    
         {{end}}
+    
+        
+    
+        
 
-    {{end}}
+        
+
+    
 
     

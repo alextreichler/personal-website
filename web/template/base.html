@@ -7,19 +7,21 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="/">Home</a>
-            <a href="/admin" style="float: right;">Admin Login</a>
-        </nav>
-    </header>
+    <div class="container">
+        <header class="site-header">
+            <nav>
+                <a href="/">Home</a>
+                <a href="/admin">Admin Login</a>
+            </nav>
+        </header>
 
-    <main>
-        {{template "content" .}}
-    </main>
+        <main>
+            {{template "content" .}}
+        </main>
 
-    <footer>
-        <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved.</p>
-    </footer>
+        <footer>
+            <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved.</p>
+        </footer>
+    </div>
 </body>
 </html>
