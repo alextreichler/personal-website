@@ -1,0 +1,21 @@
+{{define "title"}}New Post{{end}}
+
+{{define "content"}}
+    <h1>New Post</h1>
+    <form action="/admin/posts/new" method="POST">
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="slug">Slug (optional, auto-generated if empty):</label>
+            <input type="text" id="slug" name="slug">
+        </div>
+        <div>
+            <label for="content">Content (Markdown):</label>
+            <textarea id="content" name="content" rows="10" required></textarea>
+        </div>
+        <button type="submit">Publish</button>
+    </form>
+    <p><a href="/admin/posts">Cancel</a></p>
+{{end}}

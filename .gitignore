@@ -11,6 +11,9 @@ admin
 *.sqlite
 *.sqlite3
 
+# Documentation
+Specs.md
+
 # OS specific
 .DS_Store
 .AppleDouble

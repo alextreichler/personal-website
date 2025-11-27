@@ -36,7 +36,7 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(24 * time.Hour),
 	})
 
-	http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
+	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
 }
 
 func (app *App) Logout(w http.ResponseWriter, r *http.Request) {

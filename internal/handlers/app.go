@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"bytes"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/alextreichler/personal-website/internal/repository"
+	"github.com/yuin/goldmark"
 )
 
 type App struct {
@@ -22,6 +25,12 @@ func NewApp(db *repository.Database) *App {
 		"web/template/base.html",
 		"web/template/home.html",
 		"web/template/login.html",
+		"web/template/dashboard.html",
+		"web/template/admin_posts.html",
+		"web/template/admin_post_new.html",
+		"web/template/admin_post_edit.html",
+		"web/template/admin_about.html",
+		"web/template/post.html",
 		// Add other templates here as they are created
 	))
 
@@ -33,19 +42,131 @@ func NewApp(db *repository.Database) *App {
 }
 
 func (app *App) Home(w http.ResponseWriter, r *http.Request) {
+
 	if r.URL.Path != "/" {
+
 		http.NotFound(w, r)
+
 		return
+
 	}
 
-	data := map[string]interface{}{
-		"CurrentYear": time.Now().Year(),
-	}
 
-	err := app.Templates.ExecuteTemplate(w, "base.html", data)
+
+		posts, err := app.DB.GetAllPosts()
+
+
+
+		if err != nil {
+
+
+
+			log.Printf("Error fetching posts: %v", err)
+
+
+
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+
+
+
+			return
+
+
+
+		}
+
+
+
+	
+
+
+
+		aboutContent, err := app.DB.GetSetting("about")
+
+
+
+		if err != nil {
+
+
+
+			// Fallback if setting is missing
+
+
+
+			aboutContent = "Welcome! (Edit this in admin)"
+
+
+
+		}
+
+
+
+	
+
+
+
+		// Render Markdown for About section
+
+
+
+		var aboutBuf bytes.Buffer
+
+
+
+		if err := goldmark.Convert([]byte(aboutContent), &aboutBuf); err != nil {
+
+
+
+			log.Printf("Error rendering about markdown: %v", err)
+
+
+
+		}
+
+
+
+	
+
+
+
+		data := map[string]interface{}{
+
+
+
+			"CurrentYear":  time.Now().Year(),
+
+
+
+			"Posts":        posts,
+
+
+
+			"AboutHTML":    template.HTML(aboutBuf.String()),
+
+
+
+		}
+
+
+
+	
+
+
+
+		err = app.Templates.ExecuteTemplate(w, "home.html", data)
+
+
+
+	
+
 	if err != nil {
+
 		log.Printf("Error rendering template: %v", err)
+
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+
 		return
+
 	}
+
 }

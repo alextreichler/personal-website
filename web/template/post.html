@@ -1,0 +1,16 @@
+{{define "title"}}{{.Post.Title}}{{end}}
+
+{{define "content"}}
+    <article>
+        <header>
+            <h1>{{.Post.Title}}</h1>
+            <p><small>Posted on {{.Post.CreatedAt.Format "January 02, 2006"}}</small></p>
+        </header>
+        
+        <div class="content">
+            {{.ContentHTML}}
+        </div>
+    </article>
+
+    <p><a href="/">Back to Home</a></p>
+{{end}}

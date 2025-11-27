@@ -1,0 +1,33 @@
+{{define "title"}}Manage Posts{{end}}
+
+{{define "content"}}
+    <h1>Manage Posts</h1>
+    <a href="/admin/posts/new" class="button">Write New Post</a>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Posts}}
+            <tr>
+                <td>{{.Title}}</td>
+                <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                <td>
+                    <a href="/admin/posts/edit?id={{.ID}}">Edit</a> | 
+                    <a href="/admin/posts/delete?id={{.ID}}" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="3">No posts found.</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    <p><a href="/admin/dashboard">Back to Dashboard</a></p>
+{{end}}

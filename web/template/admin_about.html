@@ -1,0 +1,13 @@
+{{define "title"}}Edit About Me{{end}}
+
+{{define "content"}}
+    <h1>Edit About Me</h1>
+    <form action="/admin/about" method="POST">
+        <div>
+            <label for="content">About Content (Markdown):</label>
+            <textarea id="content" name="content" rows="15" required>{{.Content}}</textarea>
+        </div>
+        <button type="submit">Save Changes</button>
+    </form>
+    <p><a href="/admin/dashboard">Back to Dashboard</a></p>
+{{end}}
