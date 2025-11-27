@@ -56,9 +56,9 @@ body {
 .orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.25; /* Much more subtle */
-    animation: drift 25s infinite alternate ease-in-out;
+    filter: blur(120px); /* Increased blur */
+    opacity: 0.08; /* Even more subtle */
+    animation: drift 40s infinite alternate ease-in-out; /* Slower animation */
 }
 
 /* ... (orb-1 and orb-2 definitions stay, drift keyframes stay) ... */
@@ -109,8 +109,8 @@ main {
     height: 70vw;
     top: -20%;
     left: -20%;
-    background: radial-gradient(circle, var(--accent-color), transparent 70%);
-    animation-duration: 20s;
+    background: radial-gradient(circle, var(--accent-color), transparent 70%); /* Accent (Orange) now top-left */
+    animation-duration: 45s;
 }
 
 .orb-2 {
@@ -118,9 +118,9 @@ main {
     height: 60vw;
     bottom: -20%;
     right: -20%;
-    background: radial-gradient(circle, #ffb700, transparent 70%); /* Brighter Gold */
-    animation-duration: 25s;
-    animation-delay: -5s;
+    background: radial-gradient(circle, #ffb700, transparent 70%); /* Brighter Gold now bottom-right */
+    animation-duration: 50s;
+    animation-delay: -10s;
 }
 
 @keyframes drift {
@@ -158,7 +158,7 @@ main {
     border-bottom: 1px solid var(--border-color); /* Subtle separator */
 }
 
-.site-header nav a {
+.site-header nav a:not(.site-logo-link) {
     display: inline-block;
     padding: 8px 20px;
     background-color: var(--card-bg);
@@ -181,20 +181,9 @@ main {
     z-index: 1;
 }
 
-@keyframes sunRays {
-    0% {
-        box-shadow: 
-            0 0 0 0 rgba(231, 111, 81, 0.7),
-            0 0 0 0 rgba(231, 111, 81, 0.4);
-    }
-    100% {
-        box-shadow: 
-            0 0 0 10px rgba(231, 111, 81, 0),
-            0 0 0 20px rgba(231, 111, 81, 0);
-    }
-}
+/* ... keyframes sunRays ... */
 
-.site-header nav a:hover {
+.site-header nav a:not(.site-logo-link):hover {
     background-color: var(--accent-color);
     color: #ffffff;
     transform: translateY(-3px) scale(1.02);
@@ -202,10 +191,28 @@ main {
     animation: sunRays 1.5s infinite;
 }
 
-.site-header nav a:active {
-    transform: translateY(-1px) scale(0.98); /* Simulate press with slight scale down */
+.site-header nav a:not(.site-logo-link):active {
+    transform: translateY(-1px) scale(0.98);
     animation: none; /* Stop rays on click */
 }
+
+/* Logo specific styles */
+.site-logo-link {
+    display: block;
+    color: var(--text-color);
+    transition: opacity 0.2s ease;
+    text-decoration: none;
+}
+
+.site-logo-link:hover {
+    opacity: 0.8;
+}
+
+.site-logo-link svg {
+    display: block;
+}
+
+
 
 @keyframes postHighlightGlow {
     0% {
@@ -238,6 +245,20 @@ main {
     justify-content: space-between;
     align-items: center;
 }
+
+.site-logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color); /* Main text color */
+    text-decoration: none;
+    padding: 0; /* No button padding */
+    background: none; /* No button background */
+    border: none; /* No button border */
+    box-shadow: none; /* No button shadow */
+    transform: none; /* No button transform */
+    transition: none; /* No button transition */
+}
+
 
 nav a {
     text-decoration: none;
