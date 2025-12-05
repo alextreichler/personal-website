@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alextreichler/personal-website/internal/models"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/yuin/goldmark"
 )
 
@@ -29,6 +30,10 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Sanitize HTML
+	p := bluemonday.UGCPolicy()
+	safeHTML := p.Sanitize(buf.String())
+
 	// Create description snippet (first 150 chars)
 	desc := post.Content
 	if len(desc) > 150 {
@@ -37,7 +42,7 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{
 		"Post":            post,
-		"ContentHTML":     template.HTML(buf.String()),
+		"ContentHTML":     template.HTML(safeHTML),
 		"PageTitle":       post.Title,
 		"MetaDescription": desc,
 	}
@@ -164,11 +169,17 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) AdminDeletePost(w http.ResponseWriter, r *http.Request) {
-	idStr := r.URL.Query().Get("id")
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	idStr := r.FormValue("id")
 	id := 0
 	fmt.Sscanf(idStr, "%d", &id)
 
-	err := app.DB.DeletePost(id)
+	err = app.DB.DeletePost(id)
 	if err != nil {
 		slog.Error("Error deleting post", "error", err)
 		http.Error(w, "Error deleting post", http.StatusInternalServerError)

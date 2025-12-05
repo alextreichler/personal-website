@@ -8,7 +8,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/alextreichler/personal-website/internal/auth"
+	"github.com/alextreichler/personal-website/internal/middleware"
 	"github.com/alextreichler/personal-website/internal/repository"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/yuin/goldmark"
 )
 
@@ -73,12 +76,21 @@ func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data
 		// Inject login status
 		cookie, err := r.Cookie("admin_session")
 		if err == nil && cookie.Value != "" {
-			dataMap["IsLoggedIn"] = true
-			dataMap["Username"] = cookie.Value
+			username, err := auth.Verify(cookie.Value)
+			if err == nil {
+				dataMap["IsLoggedIn"] = true
+				dataMap["Username"] = username
+			} else {
+				dataMap["IsLoggedIn"] = false
+				dataMap["Username"] = ""
+			}
 		} else {
 			dataMap["IsLoggedIn"] = false
 			dataMap["Username"] = ""
 		}
+
+		// Inject CSRF token
+		dataMap["CSRFToken"] = middleware.GetCSRFToken(r)
 	}
 
 	// Execute "base.html" which is the layout
@@ -112,9 +124,13 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error rendering about markdown", "error", err)
 	}
 
+	// Sanitize HTML
+	p := bluemonday.UGCPolicy()
+	safeAboutHTML := p.Sanitize(aboutBuf.String())
+
 	data := map[string]interface{}{
 		"Posts":           posts,
-		"AboutHTML":       template.HTML(aboutBuf.String()),
+		"AboutHTML":       template.HTML(safeAboutHTML),
 		"PageTitle":       "Home",
 		"MetaDescription": "Welcome to the personal website and blog of Alex Treichler. Read my latest thoughts on technology and more.",
 	}

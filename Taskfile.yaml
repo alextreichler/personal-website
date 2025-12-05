@@ -1,0 +1,41 @@
+version: '3'
+
+vars:
+  # Updated image name to match the project repository
+  IMAGE_NAME: ghcr.io/alextreichler/personal-website
+  TAG: latest
+  BINARY_NAME: personal-website
+
+tasks:
+  default:
+    cmds:
+      - task: build
+
+  build:
+    desc: Build the Go binary locally
+    cmds:
+      - echo "Building {{.BINARY_NAME}}..."
+      - mkdir -p bin
+      - CGO_ENABLED=0 go build -o bin/{{.BINARY_NAME}} ./cmd/server
+
+  run:
+    desc: Run the application locally
+    cmds:
+      - go run ./cmd/server
+
+  clean:
+    desc: Remove built binaries
+    cmds:
+      - rm -rf bin/
+
+  image:
+    desc: Build the container image using Docker
+    cmds:
+      - docker build -t {{.IMAGE_NAME}}:{{.TAG}} .
+
+  push:
+    desc: Push the container image to GHCR
+    deps: [image]
+    cmds:
+      - echo "Pushing to {{.IMAGE_NAME}}:{{.TAG}}"
+      - docker push {{.IMAGE_NAME}}:{{.TAG}}

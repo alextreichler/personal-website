@@ -6,6 +6,7 @@
     <div style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; background: #f9f9f9;">
         <h3>Upload New Image</h3>
         <form action="/admin/media/upload" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
             <input type="file" name="image" required>
             <button type="submit">Upload</button>
         </form>

@@ -30,10 +30,11 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set a simple session cookie
+	// Set a signed session cookie
+	signedValue := auth.Sign(username)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "admin_session",
-		Value:    username, // Storing username for display
+		Value:    signedValue,
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add(24 * time.Hour),

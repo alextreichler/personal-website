@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+
+	"github.com/alextreichler/personal-website/internal/auth"
 )
 
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
@@ -11,6 +13,21 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Redirect(w, r, "/admin", http.StatusSeeOther)
 			return
 		}
+
+		_, err = auth.Verify(cookie.Value)
+		if err != nil {
+			// Invalid signature, clear cookie and redirect
+			http.SetCookie(w, &http.Cookie{
+				Name:     "admin_session",
+				Value:    "",
+				Path:     "/",
+				MaxAge:   -1,
+				HttpOnly: true,
+			})
+			http.Redirect(w, r, "/admin", http.StatusSeeOther)
+			return
+		}
+
 		next(w, r)
 	}
 }

@@ -29,7 +29,11 @@
                 <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
                 <td>
                     <a href="/admin/posts/edit?id={{.ID}}">Edit</a> | 
-                    <a href="/admin/posts/delete?id={{.ID}}" onclick="return confirm('Are you sure?')">Delete</a>
+                    <form action="/admin/posts/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                        <input type="hidden" name="id" value="{{.ID}}">
+                        <button type="submit" style="background:none;border:none;padding:0;color:blue;text-decoration:underline;cursor:pointer;">Delete</button>
+                    </form>
                 </td>
             </tr>
             {{else}}

@@ -3,6 +3,7 @@
 {{define "content"}}
     <h1>Admin Login</h1>
     <form action="/admin" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
