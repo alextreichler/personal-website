@@ -50,6 +50,9 @@
                     </svg>
                 </a>
                 <div class="nav-right-links">
+                    <button id="theme-toggle" aria-label="Toggle Dark Mode" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-color); padding:0 10px;">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     {{if .IsLoggedIn}}
                         <a href="/admin/dashboard">Admin</a>
                         <a href="/logout">Logout ({{.Username}})</a>
@@ -72,5 +75,38 @@
             <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved. | <a href="/rss.xml">RSS Feed</a></p>
         </div>
     </footer>
+
+    <!-- FontAwesome for Toggle Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = toggleBtn.querySelector('i');
+
+        // Check local storage or system preference
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-mode');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else if (!currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+             // Optionally set initial state based on system, but allow override
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
 </body>
 </html>

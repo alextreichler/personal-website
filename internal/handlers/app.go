@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alextreichler/personal-website/internal/auth"
+	"github.com/alextreichler/personal-website/internal/config"
 	"github.com/alextreichler/personal-website/internal/middleware"
 	"github.com/alextreichler/personal-website/internal/repository"
 	"github.com/microcosm-cc/bluemonday"
@@ -18,9 +19,10 @@ import (
 type App struct {
 	DB            *repository.Database
 	TemplateCache map[string]*template.Template
+	Config        *config.Config
 }
 
-func NewApp(db *repository.Database) *App {
+func NewApp(db *repository.Database, cfg *config.Config) *App {
 	// Pre-compile templates into a cache
 	cache := make(map[string]*template.Template)
 
@@ -34,6 +36,7 @@ func NewApp(db *repository.Database) *App {
 		"admin_about.html",
 		"admin_media.html",
 		"post.html",
+		"error.html",
 		// Add other templates here as they are created
 	}
 
@@ -44,6 +47,7 @@ func NewApp(db *repository.Database) *App {
 		// The error suggests "web/template/" might be prefixed again internally.
 		// By providing the full relative paths directly, we avoid filepath.Join's
 		// potential for unexpected behavior with ParseFiles in this context.
+		// TODO: Use cfg.StaticPath logic if templates move, but they are in template/ not static/
 		ts, err := template.ParseFiles("web/template/base.html", "web/template/"+page)
 		if err != nil {
 			slog.Error("Error parsing template", "name", name, "error", err)
@@ -56,6 +60,7 @@ func NewApp(db *repository.Database) *App {
 	return &App{
 		DB:            db,
 		TemplateCache: cache,
+		Config:        cfg,
 	}
 }
 
@@ -74,7 +79,7 @@ func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data
 		}
 
 		// Inject login status
-		cookie, err := r.Cookie("admin_session")
+		cookie, err := r.Cookie(app.Config.SessionCookie)
 		if err == nil && cookie.Value != "" {
 			username, err := auth.Verify(cookie.Value)
 			if err == nil {
@@ -103,7 +108,7 @@ func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data
 
 func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.NotFound(w, r)
 		return
 	}
 
@@ -136,6 +141,20 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.Render(w, r, "home.html", data)
+}
+
+func (app *App) RenderError(w http.ResponseWriter, r *http.Request, status int, message string) {
+	w.WriteHeader(status)
+	data := map[string]interface{}{
+		"StatusCode": status,
+		"Message":    message,
+		"PageTitle":  "Error",
+	}
+	app.Render(w, r, "error.html", data)
+}
+
+func (app *App) NotFound(w http.ResponseWriter, r *http.Request) {
+	app.RenderError(w, r, http.StatusNotFound, "Page Not Found")
 }
 
 

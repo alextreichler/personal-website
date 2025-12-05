@@ -19,7 +19,7 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 
 	post, err := app.DB.GetPostBySlug(slug)
 	if err != nil {
-		http.NotFound(w, r)
+		app.NotFound(w, r)
 		return
 	}
 
@@ -79,6 +79,7 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	slug := r.FormValue("slug")
 	status := r.FormValue("status")
+	tagsInput := r.FormValue("tags")
 
 	// --- Input Validation ---
 	if strings.TrimSpace(title) == "" {
@@ -112,11 +113,24 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 		Views:     0,
 	}
 
-	err = app.DB.CreatePost(post)
-	if err != nil {
+	// We need the ID to set tags, so CreatePost must return the ID or update the struct
+	// Assuming CreatePost in db.go uses LastInsertId and likely doesn't return it easily
+	// Let's modify CreatePost in db.go to return ID or we assume title+slug is unique enough?
+	// Better: Update CreatePost to use LastInsertId. 
+	// For now, let's modify db.go CreatePost signature first, OR fetch it back.
+	// Let's fetch it back by slug since slug is unique.
+	
+	if err := app.DB.CreatePost(post); err != nil {
 		slog.Error("Error creating post", "error", err)
 		http.Error(w, "Error creating post", http.StatusInternalServerError)
 		return
+	}
+	
+	// Fetch back to get ID
+	createdPost, err := app.DB.GetPostBySlug(post.Slug)
+	if err == nil {
+		tags := strings.Split(tagsInput, ",")
+		app.DB.SetPostTags(createdPost.ID, tags)
 	}
 
 	http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
@@ -154,7 +168,8 @@ func (app *App) AdminEditPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Post": post,
+		"Post":       post,
+		"TagsString": strings.Join(post.Tags, ", "),
 	}
 
 	app.Render(w, r, "admin_post_edit.html", data)
@@ -185,6 +200,7 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	slug := r.FormValue("slug")
 	status := r.FormValue("status")
+	tagsInput := r.FormValue("tags")
 
 	if strings.TrimSpace(title) == "" {
 		http.Error(w, "Title cannot be empty", http.StatusBadRequest)
@@ -222,6 +238,12 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error updating post", "error", err)
 		http.Error(w, "Error updating post", http.StatusInternalServerError)
 		return
+	}
+
+	// Update Tags
+	tags := strings.Split(tagsInput, ",")
+	if err := app.DB.SetPostTags(post.ID, tags); err != nil {
+		slog.Error("Error updating tags", "error", err)
 	}
 
 	http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)

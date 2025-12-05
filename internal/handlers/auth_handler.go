@@ -40,7 +40,7 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// Set a signed session cookie
 	signedValue := auth.Sign(username)
 	http.SetCookie(w, &http.Cookie{
-		Name:     "admin_session",
+		Name:     app.Config.SessionCookie,
 		Value:    signedValue,
 		Path:     "/",
 		HttpOnly: true,
@@ -54,7 +54,7 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     "admin_session",
+		Name:     app.Config.SessionCookie,
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,

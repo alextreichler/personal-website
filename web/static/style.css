@@ -8,6 +8,9 @@
     --accent-hover: #e05e3f;
     --border-color: #e0e0e0;
     --shadow-color: rgba(0, 0, 0, 0.05);
+    --header-bg: rgba(253, 252, 248, 0.85); /* Glassy Light */
+    --code-bg: #f3f2ef;
+    --code-block-bg: #2d2d2d;
     
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -16,23 +19,43 @@
     --font-serif: 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-*, *::before, *::after {
-    box-sizing: border-box;
+/* Dark Theme Variables - Applied via media query OR .dark-mode class */
+body.dark-mode {
+    --bg-color: #1a1a1a;      /* Deep Charcoal */
+    --card-bg: #2d2d2d;       /* Slightly lighter Charcoal */
+    --text-color: #f0f0f0;    /* Light Grey */
+    --text-light: #b0b0b0;    /* Muted Grey */
+    --accent-color: #e76f51;  /* Burnt Orange (same accent) */
+    --accent-hover: #e05e3f;
+    --border-color: #404040;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --header-bg: rgba(26, 26, 26, 0.85); /* Glassy Dark */
+    --code-bg: #333333;
+    --code-block-bg: #111111;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /* --- Earth & Logic Theme (Dark) --- */
-        --bg-color: #1a1a1a;      /* Deep Charcoal */
-        --card-bg: #2d2d2d;       /* Slightly lighter Charcoal */
-        --text-color: #f0f0f0;    /* Light Grey */
-        --text-light: #b0b0b0;    /* Muted Grey */
-        --accent-color: #e76f51;  /* Burnt Orange (same accent) */
+        /* Default to dark if system pref, unless overridden by specific light class (not impl yet)
+           For now, we rely on JS to toggle class. If JS fails, system pref logic below applies
+           BUT we want the class to win.
+           Actually, the simplest way is to have the class define the vars.
+           If we want system pref to be default, we can leave this, but the class needs to use !important or be more specific?
+           CSS Variables cascade. body.dark-mode selector is more specific than :root in media query? No, :root is pseudo-class.
+           Let's just duplicate the vars into body.dark-mode for manual override.
+        */
+        --bg-color: #1a1a1a;
+        --card-bg: #2d2d2d;
+        --text-color: #f0f0f0;
+        --text-light: #b0b0b0;
+        --accent-color: #e76f51;
         --accent-hover: #e05e3f;
         --border-color: #404040;
         --shadow-color: rgba(0, 0, 0, 0.3);
     }
 }
+
+*, *::before, *::after {
 
 body {
     font-family: var(--font-sans);
@@ -176,12 +199,79 @@ main {
 /* Header & Nav */
 .site-header {
     width: 100%;
-    background: transparent; /* Match page background */
+    background: rgba(255, 255, 255, 0.8); /* Fallback */
+    background: var(--header-bg); /* defined below in variables */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: var(--text-color);
-    padding: 30px 0;
+    padding: 20px 0;
     margin-bottom: 40px;
-    box-shadow: none; /* Remove shadow */
-    border-bottom: 1px solid var(--border-color); /* Subtle separator */
+    box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 60px 20px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--text-color) 0%, var(--text-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+/* Rich Typography for Content */
+.content blockquote {
+    border-left: 4px solid var(--accent-color);
+    margin: 1.5em 0;
+    padding: 1em 20px 1em 25px;
+    background: var(--code-bg); /* Reuse code bg for subtle contrast */
+    font-style: italic;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-color);
+}
+
+.content code {
+    background-color: var(--code-bg);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.9em;
+}
+
+.content pre {
+    background: var(--code-block-bg);
+    color: #f8f8f2; /* Always light text in code blocks */
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+    margin: 2em 0;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+}
+
+.content pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
 }
 
 .site-header nav a:not(.site-logo-link) {
@@ -366,17 +456,19 @@ a:hover {
 }
 
 .post-list-item {
-    padding: 20px 24px;
-    background-color: var(--card-bg);
+    padding: 25px 30px;
+    background-color: transparent; /* Cleaner look */
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    box-shadow: 0 4px 8px var(--shadow-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Removed shadow for a flatter, more modern look, adding it back on hover */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .post-list-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px var(--shadow-color);
+    border-color: var(--accent-color);
+    background-color: var(--card-bg);
 }
 
 .post-header {
@@ -402,6 +494,32 @@ a:hover {
     color: var(--text-light);
     white-space: nowrap; /* Prevent date from wrapping */
     font-weight: 500;
+}
+
+/* Tags */
+.tags {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    background-color: var(--code-bg);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tag:hover {
+    background-color: var(--accent-color);
+    color: #fff;
 }
 
 /* Single Post View */
@@ -508,4 +626,17 @@ footer .container {
 .btn-danger-link:hover {
     color: #b91c1c; /* Red-700 */
     text-decoration: underline;
+}
+
+/* EasyMDE Tooltip Fix */
+.editor-toolbar .editor-tooltip {
+    background-color: #000 !important;   /* Dark background */
+    color: #fff !important;              /* White text */
+    border: 1px solid #000 !important;
+    z-index: 10000 !important;           /* Ensure on top */
+}
+
+/* Ensure arrow color matches if it uses one */
+.editor-toolbar .editor-tooltip:before {
+    border-top-color: #000 !important;
 }
