@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/google/uuid"
 )
@@ -38,7 +37,7 @@ func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 	// Limit upload size to 10MB
 	r.ParseMultipartForm(10 << 20)
 
-	file, handler, err := r.FormFile("image")
+	file, _, err := r.FormFile("image")
 	if err != nil {
 		slog.Error("Error retrieving file", "error", err)
 		http.Redirect(w, r, "/admin/media", http.StatusSeeOther)

@@ -27,7 +27,13 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 	_, err = auth.Authenticate(app.DB.Conn, username, password)
 	if err != nil {
 		time.Sleep(2 * time.Second) // Mitigate brute-force attacks
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		
+		// Re-render the login page with an error message
+		data := map[string]interface{}{
+			"PageTitle": "Login",
+			"Error":     "Invalid credentials",
+		}
+		app.Render(w, r, "login.html", data)
 		return
 	}
 

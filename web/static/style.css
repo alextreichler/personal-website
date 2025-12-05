@@ -16,6 +16,10 @@
     --font-serif: 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         /* --- Earth & Logic Theme (Dark) --- */
@@ -39,6 +43,25 @@ body {
     padding: 0; /* Remove body padding here, container will handle it */
     -webkit-font-smoothing: antialiased;
     position: relative; /* For z-index context */
+    
+    /* Sticky Footer Layout */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main Layout Container */
+body > .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Ensure it takes full width */
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    animation: fadeInUp 0.6s ease-out forwards;
 }
 
 /* Background Animation */
@@ -73,10 +96,6 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-main {
-    animation: fadeInUp 0.6s ease-out forwards;
 }
 
 /* Animated Link Underline (for text links) */
@@ -142,9 +161,16 @@ main {
 
 /* Layout Container - now wraps main content only */
 .container {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px; /* Horizontal padding only, header/footer handle vertical */
+}
+
+/* Centered Content Column for Readability - Relaxed for wider screens */
+.home-content,
+.post-layout {
+    /* Removed max-width: 800px restriction */
+    width: 100%;
 }
 
 /* Header & Nav */
@@ -324,8 +350,22 @@ a:hover {
 }
 
 /* Post List */
-.post-list-item {
+.post-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
     margin-bottom: 30px;
+}
+
+.post-card-link:hover {
+    color: inherit;
+}
+
+.post-card-link:last-child {
+    margin-bottom: 0;
+}
+
+.post-list-item {
     padding: 20px 24px;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -339,10 +379,6 @@ a:hover {
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
-.post-list-item:last-child {
-    margin-bottom: 0;
-}
-
 .post-header {
     display: flex;
     justify-content: space-between;
@@ -354,14 +390,10 @@ a:hover {
     font-size: 1.4rem;
     flex: 1; /* Allow title to take available space */
     padding-right: 20px; /* Space between title and date */
+    transition: color 0.2s ease;
 }
 
-.post-list-item h3 a {
-    color: var(--text-color);
-    text-decoration: none;
-}
-
-.post-list-item h3 a:hover {
+.post-card-link:hover .post-list-item h3 {
     color: var(--accent-color);
 }
 
@@ -444,11 +476,21 @@ th {
 
 /* Footer */
 footer {
-    margin-top: 80px;
-    padding-top: 40px;
+    margin-top: auto;
     border-top: 1px solid var(--border-color);
+    width: 100%;
+    background-color: var(--bg-color); /* Ensure background matches body */
+}
+
+footer .container {
+    padding-top: 40px;
+    padding-bottom: 20px;
     text-align: center;
     color: var(--text-light);
+    margin: 0 auto;
+    max-width: 1200px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 /* Utilities */

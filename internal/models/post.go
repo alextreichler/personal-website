@@ -13,3 +13,7 @@ type Post struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"` // For soft delete
 }
+
+func (p *Post) ShowUpdated() bool {
+	return p.UpdatedAt.Sub(p.CreatedAt) > 5*time.Minute
+}
