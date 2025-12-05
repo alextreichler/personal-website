@@ -46,9 +46,30 @@ func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Validate extension
-	ext := strings.ToLower(filepath.Ext(handler.Filename))
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" && ext != ".webp" {
+	// Validate content type (Magic Numbers)
+	buff := make([]byte, 512)
+	if _, err := file.Read(buff); err != nil {
+		slog.Error("Error reading file header", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	fileType := http.DetectContentType(buff)
+	if _, err := file.Seek(0, 0); err != nil {
+		slog.Error("Error resetting file pointer", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	allowedTypes := map[string]string{
+		"image/jpeg": ".jpg",
+		"image/png":  ".png",
+		"image/gif":  ".gif",
+		"image/webp": ".webp",
+	}
+
+	ext, allowed := allowedTypes[fileType]
+	if !allowed {
 		http.Error(w, "Invalid file type. Only JPG, PNG, GIF, WEBP allowed.", http.StatusBadRequest)
 		return
 	}

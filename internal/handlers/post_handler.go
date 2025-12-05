@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"strconv" // Added this import
 	"strings"
 	"time"
 
@@ -79,14 +80,27 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	slug := r.FormValue("slug")
 	status := r.FormValue("status")
-	if status == "" {
-		status = "draft" // Default to draft if not specified
+
+	// --- Input Validation ---
+	if strings.TrimSpace(title) == "" {
+		http.Error(w, "Title cannot be empty", http.StatusBadRequest)
+		return
+	}
+	if strings.TrimSpace(content) == "" {
+		http.Error(w, "Content cannot be empty", http.StatusBadRequest)
+		return
+	}
+	if status != "draft" && status != "published" {
+		status = "draft" // Default to draft if invalid status provided
 	}
 
 	// Simple slug generation if empty
 	if slug == "" {
 		slug = slugify(title)
+	} else {
+		slug = slugify(slug) // Ensure user-provided slug is also slugified
 	}
+	// --- End Input Validation ---
 
 	post := &models.Post{
 		Title:     title,
@@ -109,15 +123,29 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func slugify(s string) string {
-	// Very basic slugify: lower case, replace spaces with hyphens
-	// In a real app, use a regex to remove non-alphanumeric chars
-	return strings.ToLower(strings.ReplaceAll(s, " ", "-"))
+	s = strings.ToLower(s)
+	s = strings.ReplaceAll(s, " ", "-") // Replace spaces with hyphens
+	s = strings.Map(func(r rune) rune { // Remove non-alphanumeric characters
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
+			return r
+		}
+		return -1
+	}, s)
+	s = strings.Trim(s, "-") // Trim leading/trailing hyphens
+	// Replace multiple hyphens with a single hyphen
+	for strings.Contains(s, "--") {
+		s = strings.ReplaceAll(s, "--", "-")
+	}
+	return s
 }
 
 func (app *App) AdminEditPost(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
-	id := 0
-	fmt.Sscanf(idStr, "%d", &id)
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
 
 	post, err := app.DB.GetPostByID(id)
 	if err != nil {
@@ -140,8 +168,11 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	idStr := r.FormValue("id")
-	id := 0
-	fmt.Sscanf(idStr, "%d", &id)
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
 
 	post, err := app.DB.GetPostByID(id)
 	if err != nil {
@@ -149,14 +180,35 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post.Title = r.FormValue("title")
-	post.Slug = r.FormValue("slug")
-	post.Status = r.FormValue("status")
-	if post.Slug == "" {
-		post.Slug = slugify(post.Title)
+	// --- Input Validation ---
+	title := r.FormValue("title")
+	content := r.FormValue("content")
+	slug := r.FormValue("slug")
+	status := r.FormValue("status")
+
+	if strings.TrimSpace(title) == "" {
+		http.Error(w, "Title cannot be empty", http.StatusBadRequest)
+		return
 	}
-	post.Content = r.FormValue("content")
+	if strings.TrimSpace(content) == "" {
+		http.Error(w, "Content cannot be empty", http.StatusBadRequest)
+		return
+	}
+	if status != "draft" && status != "published" {
+		status = "draft" // Default to draft if invalid status provided
+	}
+
+	post.Title = title
+	post.Content = content
+	post.Status = status
+
+	if slug == "" {
+		post.Slug = slugify(post.Title)
+	} else {
+		post.Slug = slugify(slug) // Ensure user-provided slug is also slugified
+	}
 	post.UpdatedAt = time.Now()
+	// --- End Input Validation ---
 
 	err = app.DB.UpdatePost(post)
 	if err != nil {
@@ -176,8 +228,11 @@ func (app *App) AdminDeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	idStr := r.FormValue("id")
-	id := 0
-	fmt.Sscanf(idStr, "%d", &id)
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
 
 	err = app.DB.DeletePost(id)
 	if err != nil {

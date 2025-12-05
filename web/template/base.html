@@ -20,6 +20,11 @@
     <meta name="twitter:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}Alex Treichler{{end}}">
     <meta name="twitter:description" content="{{if .MetaDescription}}{{.MetaDescription}}{{else}}Personal website and blog of Alex Treichler.{{end}}">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="/static/style.css">
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml">
 </head>
@@ -44,14 +49,14 @@
                         <text x="38" y="22" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="bold" fill="currentColor">alextreichler.com</text>
                     </svg>
                 </a>
-                {{if .IsLoggedIn}}
-                    <span style="float: right;">
-                        <a href="/admin/dashboard" style="margin-right: 15px;">Admin</a>
+                <div class="nav-right-links">
+                    {{if .IsLoggedIn}}
+                        <a href="/admin/dashboard">Admin</a>
                         <a href="/logout">Logout ({{.Username}})</a>
-                    </span>
-                {{else}}
-                    <a href="/admin" style="float: right;">Login</a>
-                {{end}}
+                    {{else}}
+                        <a href="/admin">Login</a>
+                    {{end}}
+                </div>
             </nav>
         </div>
     </header>

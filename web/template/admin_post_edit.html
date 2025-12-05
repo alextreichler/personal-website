@@ -1,6 +1,9 @@
 {{define "title"}}Edit Post{{end}}
 
 {{define "content"}}
+    <!-- EasyMDE CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+
     <h1>Edit Post</h1>
     <form action="/admin/posts/edit?id={{.Post.ID}}" method="POST">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
@@ -22,9 +25,18 @@
         </div>
         <div>
             <label for="content">Content (Markdown):</label>
-            <textarea id="content" name="content" rows="10" required>{{.Post.Content}}</textarea>
+            <textarea id="content" name="content" rows="10">{{.Post.Content}}</textarea>
         </div>
         <button type="submit">Update</button>
     </form>
     <p><a href="/admin/posts">Cancel</a></p>
+
+    <!-- EasyMDE Script -->
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <script>
+        var easyMDE = new EasyMDE({
+            element: document.getElementById('content'),
+            spellChecker: false,
+        });
+    </script>
 {{end}}

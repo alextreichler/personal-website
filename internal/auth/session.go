@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"log/slog" // Added this import
 	"os"
 	"strings"
 )
@@ -13,9 +14,8 @@ var SecretKey = []byte(os.Getenv("SESSION_SECRET"))
 
 func init() {
 	if len(SecretKey) == 0 {
-		// In a real environment, this should be a fatal error if not set.
-		// Using a hardcoded fallback for development convenience/safety.
-		SecretKey = []byte("unsafe-default-secret-please-change")
+		slog.Error("SESSION_SECRET environment variable not set. This is required for secure session management.")
+		os.Exit(1)
 	}
 }
 

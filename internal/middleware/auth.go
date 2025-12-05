@@ -23,6 +23,8 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				Path:     "/",
 				MaxAge:   -1,
 				HttpOnly: true,
+				Secure:   true, // Added for security
+				SameSite: http.SameSiteLaxMode, // Added for CSRF protection
 			})
 			http.Redirect(w, r, "/admin", http.StatusSeeOther)
 			return
