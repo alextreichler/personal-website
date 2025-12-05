@@ -3,6 +3,7 @@
 {{define "content"}}
     <h1>Edit Post</h1>
     <form action="/admin/posts/edit?id={{.Post.ID}}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <input type="hidden" name="id" value="{{.Post.ID}}">
         <div>
             <label for="title">Title:</label>

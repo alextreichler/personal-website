@@ -3,6 +3,7 @@
 {{define "content"}}
     <h1>New Post</h1>
     <form action="/admin/posts/new" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div>
             <label for="title">Title:</label>
             <input type="text" id="title" name="title" required>

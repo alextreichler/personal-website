@@ -3,6 +3,7 @@
 {{define "content"}}
     <h1>Edit About Me</h1>
     <form action="/admin/about" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div>
             <label for="content">About Content (Markdown):</label>
             <textarea id="content" name="content" rows="15" required>{{.Content}}</textarea>

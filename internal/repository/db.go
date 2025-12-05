@@ -2,8 +2,10 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alextreichler/personal-website/internal/models"
 	_ "modernc.org/sqlite"
@@ -65,9 +67,21 @@ func (d *Database) Migrate() error {
 		return err
 	}
 
-	// Migration for existing databases (try to add column, ignore error if exists)
-	d.Conn.Exec(`ALTER TABLE posts ADD COLUMN status TEXT DEFAULT 'published'`)
-	d.Conn.Exec(`ALTER TABLE posts ADD COLUMN views INTEGER DEFAULT 0`)
+	// Migration for existing databases
+	migrations := []string{
+		`ALTER TABLE posts ADD COLUMN status TEXT DEFAULT 'published'`,
+		`ALTER TABLE posts ADD COLUMN views INTEGER DEFAULT 0`,
+	}
+
+	for _, q := range migrations {
+		_, err := d.Conn.Exec(q)
+		if err != nil {
+			// Ignore "duplicate column name" error
+			if !strings.Contains(err.Error(), "duplicate column name") {
+				return fmt.Errorf("migration failed: %w", err)
+			}
+		}
+	}
 
 	return nil
 }
