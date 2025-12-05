@@ -158,8 +158,8 @@ func (d *Database) GetPostBySlug(slug string) (*models.Post, error) {
 }
 
 func (d *Database) UpdatePost(post *models.Post) error {
-	query := `UPDATE posts SET title = ?, slug = ?, content = ?, status = ?, updated_at = ? WHERE id = ?`
-	_, err := d.Conn.Exec(query, post.Title, post.Slug, post.Content, post.Status, post.UpdatedAt, post.ID)
+	query := `UPDATE posts SET title = ?, slug = ?, content = ?, status = ?, created_at = ?, updated_at = ? WHERE id = ?`
+	_, err := d.Conn.Exec(query, post.Title, post.Slug, post.Content, post.Status, post.CreatedAt, post.UpdatedAt, post.ID)
 	return err
 }
 

@@ -65,10 +65,12 @@
         <main>
             {{template "content" .}}
         </main>
-
-        <footer>
-            <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved. | <a href="/rss.xml">RSS Feed</a></p>
-        </footer>
     </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; {{.CurrentYear}} Alex Treichler. All rights reserved. | <a href="/rss.xml">RSS Feed</a></p>
+        </div>
+    </footer>
 </body>
 </html>

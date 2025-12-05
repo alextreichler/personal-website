@@ -1,10 +1,17 @@
 {{define "title"}}{{.Post.Title}}{{end}}
 
 {{define "content"}}
+<div class="post-layout">
     <article>
         <header>
             <h1>{{.Post.Title}}</h1>
-            <p><small>Posted on {{.Post.CreatedAt.Format "January 02, 2006"}}</small></p>
+            <p>
+                <small>Posted on {{.Post.CreatedAt.Format "January 02, 2006"}}</small>
+                {{if .Post.ShowUpdated}}
+                <br>
+                <small>Last updated on {{.Post.UpdatedAt.Format "January 02, 2006"}}</small>
+                {{end}}
+            </p>
         </header>
         
         <div class="content">
@@ -13,4 +20,5 @@
     </article>
 
     <p><a href="/">Back to Home</a></p>
+</div>
 {{end}}

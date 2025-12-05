@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -17,7 +16,7 @@ import (
 
 func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 	slug := strings.TrimPrefix(r.URL.Path, "/post/")
-	
+
 	post, err := app.DB.GetPostBySlug(slug)
 	if err != nil {
 		http.NotFound(w, r)
@@ -102,13 +101,14 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	// --- End Input Validation ---
 
+	now := time.Now()
 	post := &models.Post{
 		Title:     title,
 		Slug:      slug,
 		Content:   content,
 		Status:    status,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: now,
+		UpdatedAt: now,
 		Views:     0,
 	}
 
@@ -198,6 +198,13 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 		status = "draft" // Default to draft if invalid status provided
 	}
 
+	now := time.Now()
+
+	// Update CreatedAt if publishing a draft
+	if post.Status == "draft" && status == "published" {
+		post.CreatedAt = now
+	}
+
 	post.Title = title
 	post.Content = content
 	post.Status = status
@@ -207,7 +214,7 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 	} else {
 		post.Slug = slugify(slug) // Ensure user-provided slug is also slugified
 	}
-	post.UpdatedAt = time.Now()
+	post.UpdatedAt = now
 	// --- End Input Validation ---
 
 	err = app.DB.UpdatePost(post)

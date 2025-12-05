@@ -2,6 +2,11 @@
 
 {{define "content"}}
     <h1>Admin Login</h1>
+    {{if .Error}}
+    <div style="color: red; margin-bottom: 1em; padding: 0.5em; border: 1px solid red; border-radius: 4px; background-color: #ffe6e6;">
+        {{.Error}}
+    </div>
+    {{end}}
     <form action="/admin" method="POST">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <div>
