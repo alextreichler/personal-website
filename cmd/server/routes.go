@@ -32,8 +32,8 @@ func routes(app *handlers.App) http.Handler {
 	mux.HandleFunc("GET /admin/media", middleware.AuthMiddleware(app.AdminMediaManager))
 	mux.HandleFunc("POST /admin/media/upload", middleware.AuthMiddleware(app.AdminUploadImage))
 
-	// Static File Server
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
-
-	return middleware.CSRFMiddleware(mux)
-}
+	        // Static File Server
+	        mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
+	
+	        return middleware.SecurityHeadersMiddleware(middleware.CSRFMiddleware(mux))
+	}

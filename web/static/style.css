@@ -12,8 +12,8 @@
     --radius-sm: 8px;
     --radius-md: 12px;
     
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-serif: 'Merriweather', Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -246,6 +246,29 @@ main {
     align-items: center;
 }
 
+/* New CSS for right-aligned nav links */
+.site-header .container nav .nav-right-links {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Spacing between links */
+}
+
+/* Mobile Responsiveness for Nav */
+@media (max-width: 600px) {
+    .site-header .container nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px; /* Spacing between logo and menu items */
+    }
+
+    .site-header .container nav .nav-right-links {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+
 .site-logo {
     font-size: 1.2rem;
     font-weight: 700;
@@ -426,4 +449,21 @@ footer {
     border-top: 1px solid var(--border-color);
     text-align: center;
     color: var(--text-light);
+}
+
+/* Utilities */
+.btn-danger-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #dc2626; /* Red-600 */
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.btn-danger-link:hover {
+    color: #b91c1c; /* Red-700 */
+    text-decoration: underline;
 }

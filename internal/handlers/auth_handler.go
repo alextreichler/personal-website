@@ -26,6 +26,7 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 
 	_, err = auth.Authenticate(app.DB.Conn, username, password)
 	if err != nil {
+		time.Sleep(2 * time.Second) // Mitigate brute-force attacks
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
@@ -37,6 +38,8 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 		Value:    signedValue,
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true, // Added for security
+		SameSite: http.SameSiteLaxMode, // Added for CSRF protection
 		Expires:  time.Now().Add(24 * time.Hour),
 	})
 
@@ -50,6 +53,8 @@ func (app *App) Logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
+		Secure:   true, // Added for security
+		SameSite: http.SameSiteLaxMode, // Added for CSRF protection
 	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
