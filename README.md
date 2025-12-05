@@ -4,13 +4,13 @@ This is my very own, personal website and blog, built from the ground up with Go
 
 ## Features
 
-*   **📝 Markdown Blog**: Write posts in Markdown with full rendering support (via `goldmark`).
+*   **📝 Markdown Blog**: Write posts in Markdown with full rendering support (via `goldmark`). EasyMDE toolbar icons are now fully visible.
 *   **🔐 Admin Dashboard**: Secure login system to manage content.
 *   **✏️ CRUD Operations**: Create, Read, Update, and Delete (soft delete) posts.
-*   **📝 Draft System**: Save posts as drafts and publish them when ready.
+*   **📝 Draft System**: Save posts as drafts and publish them when ready. The post's public date now reflects its publication time, with an optional "Last updated" flag shown for modified posts.
 *   **🖼️ Media Manager**: Upload and manage images directly from the dashboard.
 *   **⚙️ Dynamic Settings**: Edit "About Me" and other site settings without code changes.
-*   **🎨 Clean UI**: Minimalist, responsive design with a dark/light neutral theme.
+*   **🎨 Clean UI**: Minimalist, responsive design with an improved layout for wide screens, ensuring readability while utilizing screen space effectively. Features a dark/light neutral theme.
 *   **🚀 High Performance**: Built with the Go standard library and `modernc.org/sqlite` (pure Go SQLite, no CGO required).
 
 ## Tech Stack
@@ -20,6 +20,7 @@ This is my very own, personal website and blog, built from the ground up with Go
 *   **Database**: SQLite (embedded, pure Go)
 *   **Templates**: Go `html/template`
 *   **CSS**: Custom minimal CSS (Flexbox/Grid)
+*   **Markdown Editor**: EasyMDE with FontAwesome icons.
 
 ## Getting Started
 
