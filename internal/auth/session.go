@@ -5,19 +5,11 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
-	"log/slog" // Added this import
-	"os"
 	"strings"
 )
 
-var SecretKey = []byte(os.Getenv("SESSION_SECRET"))
-
-func init() {
-	if len(SecretKey) == 0 {
-		slog.Error("SESSION_SECRET environment variable not set. This is required for secure session management.")
-		os.Exit(1)
-	}
-}
+// SecretKey should be set by the application at startup
+var SecretKey []byte
 
 // Sign creates a signed token from the given data string.
 // Format: base64(data).base64(hmac)

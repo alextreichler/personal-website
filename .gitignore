@@ -1,7 +1,7 @@
 # Binaries
 /bin/
 /server
-admin
+/admin
 *.exe
 *.test
 

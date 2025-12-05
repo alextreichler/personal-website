@@ -26,10 +26,14 @@
             </select>
         </div>
         <div>
+            <label for="tags">Tags (comma separated):</label>
+            <input type="text" id="tags" name="tags" value="{{.TagsString}}">
+        </div>
+        <div>
             <label for="content">Content (Markdown):</label>
             <textarea id="content" name="content" rows="10">{{.Post.Content}}</textarea>
         </div>
-        <button type="submit">Update</button>
+        <button type="submit">Save</button>
     </form>
     <p><a href="/admin/posts">Cancel</a></p>
 
