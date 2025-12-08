@@ -12,7 +12,19 @@ import (
 	"github.com/alextreichler/personal-website/internal/models"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
 )
+
+// Helper to get a configured Goldmark instance
+func getMarkdown() goldmark.Markdown {
+	return goldmark.New(
+		goldmark.WithExtensions(
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("dracula"),
+			),
+		),
+	)
+}
 
 func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 	slug := strings.TrimPrefix(r.URL.Path, "/post/")
@@ -23,16 +35,27 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var buf bytes.Buffer
-	if err := goldmark.Convert([]byte(post.Content), &buf); err != nil {
-		slog.Error("Error rendering markdown", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+	var safeHTML string
+	if post.HTMLContent != "" {
+		// Use cached content
+		safeHTML = post.HTMLContent
+	} else {
+		// Fallback: Render on the fly
+		var buf bytes.Buffer
+		md := getMarkdown()
+		if err := md.Convert([]byte(post.Content), &buf); err != nil {
+			slog.Error("Error rendering markdown", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		
+p := bluemonday.UGCPolicy()
+		p.AllowAttrs("style").OnElements("pre", "code", "span")
+		safeHTML = p.Sanitize(buf.String())
+		
+		// Inject loading="lazy" into images
+		safeHTML = strings.ReplaceAll(safeHTML, "<img ", "<img loading=\"lazy\" ")
 	}
-
-	// Sanitize HTML
-	p := bluemonday.UGCPolicy()
-	safeHTML := p.Sanitize(buf.String())
 
 	// Create description snippet (first 150 chars)
 	desc := post.Content
@@ -49,6 +72,7 @@ func (app *App) ViewPost(w http.ResponseWriter, r *http.Request) {
 
 	app.Render(w, r, "post.html", data)
 }
+
 
 func (app *App) AdminListPosts(w http.ResponseWriter, r *http.Request) {
 	posts, err := app.DB.GetAllPosts()
@@ -111,6 +135,17 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: now,
 		UpdatedAt: now,
 		Views:     0,
+	}
+
+	// Render Markdown to HTML for caching
+	var buf bytes.Buffer
+	md := getMarkdown()
+	if err := md.Convert([]byte(content), &buf); err == nil {
+		p := bluemonday.UGCPolicy()
+		p.AllowAttrs("style").OnElements("pre", "code", "span")
+		safeHTML := p.Sanitize(buf.String())
+		safeHTML = strings.ReplaceAll(safeHTML, "<img ", "<img loading=\"lazy\" ")
+		post.HTMLContent = safeHTML
 	}
 
 	// We need the ID to set tags, so CreatePost must return the ID or update the struct
@@ -231,6 +266,18 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 		post.Slug = slugify(slug) // Ensure user-provided slug is also slugified
 	}
 	post.UpdatedAt = now
+	
+	// Render Markdown to HTML for caching
+	var buf bytes.Buffer
+	md := getMarkdown()
+	if err := md.Convert([]byte(content), &buf); err == nil {
+		p := bluemonday.UGCPolicy()
+		p.AllowAttrs("style").OnElements("pre", "code", "span")
+		safeHTML := p.Sanitize(buf.String())
+		safeHTML = strings.ReplaceAll(safeHTML, "<img ", "<img loading=\"lazy\" ")
+		post.HTMLContent = safeHTML
+	}
+	
 	// --- End Input Validation ---
 
 	err = app.DB.UpdatePost(post)

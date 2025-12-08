@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/xml"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -78,34 +77,3 @@ func (app *App) RSSFeed(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) Sitemap(w http.ResponseWriter, r *http.Request) {
-	posts, err := app.DB.GetPublishedPosts()
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/xml")
-	w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>`))
-	w.Write([]byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`))
-
-	// Home page
-	w.Write([]byte(`
-	<url>
-		<loc>https://alextreichler.com/</loc>
-		<changefreq>daily</changefreq>
-		<priority>1.0</priority>
-	</url>`))
-
-	for _, post := range posts {
-		w.Write([]byte(fmt.Sprintf(`
-	<url>
-		<loc>https://alextreichler.com/post/%s</loc>
-		<lastmod>%s</lastmod>
-		<changefreq>monthly</changefreq>
-		<priority>0.8</priority>
-	</url>`, post.Slug, post.UpdatedAt.Format("2006-01-02"))))
-	}
-
-	w.Write([]byte(`</urlset>`))
-}

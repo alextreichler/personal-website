@@ -14,6 +14,7 @@ import (
 	"github.com/alextreichler/personal-website/internal/repository"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
 )
 
 type App struct {
@@ -125,12 +126,20 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var aboutBuf bytes.Buffer
-	if err := goldmark.Convert([]byte(aboutContent), &aboutBuf); err != nil {
+	md := goldmark.New(
+		goldmark.WithExtensions(
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("dracula"),
+			),
+		),
+	)
+	if err := md.Convert([]byte(aboutContent), &aboutBuf); err != nil {
 		slog.Error("Error rendering about markdown", "error", err)
 	}
 
 	// Sanitize HTML
 	p := bluemonday.UGCPolicy()
+	p.AllowAttrs("style").OnElements("pre", "code", "span")
 	safeAboutHTML := p.Sanitize(aboutBuf.String())
 
 	data := map[string]interface{}{

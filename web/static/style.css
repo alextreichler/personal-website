@@ -628,15 +628,86 @@ footer .container {
     text-decoration: underline;
 }
 
-/* EasyMDE Tooltip Fix */
-.editor-toolbar .editor-tooltip {
-    background-color: #000 !important;   /* Dark background */
-    color: #fff !important;              /* White text */
-    border: 1px solid #000 !important;
-    z-index: 10000 !important;           /* Ensure on top */
+/* --- EasyMDE Overrides --- */
+
+/* Toolbar Container */
+.editor-toolbar {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    opacity: 1 !important;
 }
 
-/* Ensure arrow color matches if it uses one */
+/* Toolbar Buttons */
+.editor-toolbar button {
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    color: var(--text-color) !important; /* Icon color */
+    box-shadow: none !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.editor-toolbar button:hover,
+.editor-toolbar button.active {
+    background-color: var(--bg-color) !important;
+    border-color: var(--border-color) !important;
+    color: var(--accent-color) !important;
+}
+
+.editor-toolbar i.fa {
+    color: inherit !important;
+}
+
+/* Tooltip (The actual popup text) */
+.editor-toolbar .editor-tooltip {
+    background-color: var(--text-color) !important;
+    color: var(--bg-color) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 4px !important;
+    font-family: var(--font-sans) !important;
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+    z-index: 10000 !important;
+}
+
+/* Tooltip Arrow */
 .editor-toolbar .editor-tooltip:before {
-    border-top-color: #000 !important;
+    border-top-color: var(--text-color) !important;
+}
+
+/* Editor Area - Base Styles */
+.CodeMirror {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    padding: 10px !important;
+}
+
+/* Ensure fullscreen mode works */
+.editor-toolbar.fullscreen,
+.CodeMirror.fullscreen {
+    z-index: 9999 !important;
+    background-color: var(--bg-color) !important;
+}
+
+.CodeMirror-cursor {
+    border-left: 2px solid var(--accent-color) !important;
+}
+
+.CodeMirror-selected {
+    background: rgba(231, 111, 81, 0.2) !important;
+}
+
+.editor-preview {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+.editor-statusbar {
+    color: var(--text-light) !important;
 }

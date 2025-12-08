@@ -10,9 +10,10 @@ import (
 type Post struct {
 	ID        int        `json:"id"`
 	Title     string     `json:"title"`
-	Slug      string     `json:"slug"`
-	Content   string     `json:"content"`
-	Status    string     `json:"status"` // "draft" or "published"
+	Slug        string     `json:"slug"`
+	Content     string     `json:"content"`
+	HTMLContent string     `json:"html_content"`
+	Status      string     `json:"status"` // "draft" or "published"
 	Views     int        `json:"views"`
 	Tags      []string   `json:"tags"`   // List of tag names
 	CreatedAt time.Time  `json:"created_at"`
