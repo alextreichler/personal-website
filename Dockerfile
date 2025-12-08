@@ -24,8 +24,7 @@ COPY --from=builder /app/personal-website .
 
 # Copy web assets (templates, static files)
 COPY web ./web
-# Copy migrations if they are needed at runtime (though currently db.go handles basic ones)
-COPY migrations ./migrations
+
 
 # Create a directory for the SQLite database
 RUN mkdir -p data
