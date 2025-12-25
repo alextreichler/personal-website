@@ -45,7 +45,7 @@ tasks:
       - docker push {{.IMAGE_NAME}}:latest
 
   release:
-    desc: Full release flow: Test -> Build Image -> Push
+    desc: "Full release flow: Test -> Build Image -> Push"
     cmds:
       # Optional: Add a test step here if you want to enforce tests before release
       # - task: test

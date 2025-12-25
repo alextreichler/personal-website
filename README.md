@@ -4,29 +4,34 @@ This is my very own, personal website and blog, built from the ground up with Go
 
 ## Features
 
-*   **📝 Markdown Blog**: Write posts in Markdown with full rendering support (via `goldmark`). EasyMDE toolbar icons are now fully visible.
+*   **📝 Markdown Blog**: Write posts in Markdown with full rendering support (via `goldmark`). Features syntax highlighting and HTML sanitization.
 *   **🔐 Admin Dashboard**: Secure login system to manage content.
 *   **✏️ CRUD Operations**: Create, Read, Update, and Delete (soft delete) posts.
-*   **📝 Draft System**: Save posts as drafts and publish them when ready. The post's public date now reflects its publication time, with an optional "Last updated" flag shown for modified posts.
-*   **🖼️ Media Manager**: Upload and manage images directly from the dashboard.
+*   **📝 Draft System**: Save posts as drafts and publish them when ready.
+*   **🖼️ Media Manager**: Upload and manage images with automatic optimization.
 *   **⚙️ Dynamic Settings**: Edit "About Me" and other site settings without code changes.
-*   **🎨 Clean UI**: Minimalist, responsive design with an improved layout for wide screens, ensuring readability while utilizing screen space effectively. Features a dark/light neutral theme.
+*   **📈 Metrics & Health**: Built-in Prometheus metrics and Kubernetes health checks.
+*   **🎨 Clean UI**: Minimalist, responsive design with Dark/Light/Retro modes.
 *   **🚀 High Performance**: Built with the Go standard library and `modernc.org/sqlite` (pure Go SQLite, no CGO required).
 
 ## Tech Stack
 
-*   **Language**: Go 1.22+
+*   **Language**: Go 1.25+
 *   **Router**: Standard Library `net/http` (ServeMux)
-*   **Database**: SQLite (embedded, pure Go)
+*   **Database**: SQLite (embedded, pure Go via `modernc.org/sqlite`)
 *   **Templates**: Go `html/template`
+*   **Markdown**: `goldmark` with syntax highlighting
+*   **Security**: `bluemonday` for HTML sanitization and custom security middleware
+*   **Monitoring**: `prometheus/client_golang`
+*   **Image Processing**: `disintegration/imaging`
 *   **CSS**: Custom minimal CSS (Flexbox/Grid)
-*   **Markdown Editor**: EasyMDE with FontAwesome icons.
 
 ## Getting Started
 
 ### Prerequisites
 
-*   Go 1.22 or higher installed.
+*   Go 1.25 or higher installed.
+*   (Optional) [Task](https://taskfile.dev/) for easier development commands.
 
 ### Installation
 
@@ -43,6 +48,11 @@ This is my very own, personal website and blog, built from the ground up with Go
     ```
 
 3.  **Run the Server**:
+    Using Task:
+    ```bash
+    task run
+    ```
+    Or using Go directly:
     ```bash
     go run ./cmd/server/
     ```
@@ -59,23 +69,28 @@ This is my very own, personal website and blog, built from the ground up with Go
 │   ├── server/         # Main web server entry point
 │   └── admin/          # CLI tool for user management
 ├── internal/           # Application code
-│   ├── auth/           # Authentication logic (bcrypt)
-│   ├── handlers/       # HTTP handlers
-│   ├── middleware/     # Auth middleware
+│   ├── auth/           # Authentication and session logic
+│   ├── config/         # Environment-based configuration
+│   ├── handlers/       # HTTP handlers and template rendering
+│   ├── middleware/     # Auth, Gzip, Security, Metrics, CSRF, ETag
 │   ├── models/         # Data structures
-│   └── repository/     # Database access (SQLite)
+│   └── repository/     # Database access and migrations
+├── migrations/         # SQL migration files
 ├── web/
-│   ├── static/         # CSS, Images, Uploads
-│   └── template/       # HTML Templates
+│   ├── static/         # CSS, JS, Favicon, Uploads
+│   └── template/       # HTML Templates (Base + Pages)
 ├── data/               # SQLite database file (ignored by Git)
-└── go.mod
+├── Taskfile.yaml       # Automation tasks
+└── go.mod              # Dependencies
 ```
 
 ## Development
 
-*   **Run in Dev Mode**: Just use `go run ./cmd/server/`.
+*   **Build**: `task build` builds the binary in the `bin/` directory.
+*   **Clean**: `task clean` removes build artifacts.
+*   **Docker**: `task image` builds a production-ready container image.
 *   **Static Files**: CSS and images are served from `web/static/`.
-*   **Templates**: HTML files are in `web/template/`. The app caches templates on startup, so restart the server to see changes (or modify `internal/handlers/app.go` to disable caching for dev).
+*   **Templates**: The app caches templates on startup for performance.
 
 ## License
 

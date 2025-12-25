@@ -100,6 +100,8 @@ func (app *App) Render(w http.ResponseWriter, r *http.Request, name string, data
 		dataMap["CSRFToken"] = middleware.GetCSRFToken(r)
 	}
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
 	// Execute "base.html" which is the layout
 	err := ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
