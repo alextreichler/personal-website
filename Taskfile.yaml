@@ -6,6 +6,8 @@ vars:
   # Use git describe to get a version string (e.g., v1.0.0-3-g123abc) or fallback to short hash
   VERSION: 
     sh: git describe --tags --always --dirty 2>/dev/null || git rev-parse --short HEAD
+  DOCKER:
+    sh: command -v podman >/dev/null 2>&1 && echo "podman" || echo "docker"
 
 tasks:
   default:
@@ -32,17 +34,17 @@ tasks:
   image:
     desc: Build the container image with version and latest tags
     cmds:
-      - echo "Building Docker image {{.IMAGE_NAME}}:{{.VERSION}}"
-      - docker build -t {{.IMAGE_NAME}}:{{.VERSION}} -t {{.IMAGE_NAME}}:latest .
+      - echo "Building container image {{.IMAGE_NAME}}:{{.VERSION}} using {{.DOCKER}}"
+      - "{{.DOCKER}} build -t {{.IMAGE_NAME}}:{{.VERSION}} -t {{.IMAGE_NAME}}:latest ."
 
   push:
     desc: Push the container image to registry
     deps: [image]
     cmds:
       - echo "Pushing {{.IMAGE_NAME}}:{{.VERSION}}"
-      - docker push {{.IMAGE_NAME}}:{{.VERSION}}
+      - "{{.DOCKER}} push {{.IMAGE_NAME}}:{{.VERSION}}"
       - echo "Pushing {{.IMAGE_NAME}}:latest"
-      - docker push {{.IMAGE_NAME}}:latest
+      - "{{.DOCKER}} push {{.IMAGE_NAME}}:latest"
 
   release:
     desc: "Full release flow: Test -> Build Image -> Push"
