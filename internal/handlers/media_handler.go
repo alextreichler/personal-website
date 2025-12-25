@@ -125,21 +125,35 @@ func (app *App) AdminUploadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Resize to max 1200px width, maintaining aspect ratio
-	if img.Bounds().Dx() > 1200 {
-		img = imaging.Resize(img, 1200, 0, imaging.Lanczos)
+	// Base UUID for this upload
+	fileUUID := uuid.New().String()
+	baseFilename := "optimized_" + fileUUID
+
+	// Helper to resize and save
+	saveVariant := func(width int, suffix string) {
+		var resizedImg = img
+		if img.Bounds().Dx() > width {
+			resizedImg = imaging.Resize(img, width, 0, imaging.Lanczos)
+		}
+		
+		filename := baseFilename + suffix + ".webp"
+		filePath := filepath.Join(app.Config.UploadPath, "optimized", filename)
+
+		if err := imaging.Save(resizedImg, filePath); err != nil {
+			slog.Error("Error encoding optimized image", "width", width, "error", err)
+		}
 	}
 
-	// Generate unique filename for optimized WebP
-	optimizedFilename := "optimized_" + uuid.New().String() + ".webp"
-	optimizedFilePath := filepath.Join(app.Config.UploadPath, "optimized", optimizedFilename)
+	// Generate 3 sizes
+	// 1. Large/Default (1200w) - Keep original naming convention (no suffix) for backward compat
+	saveVariant(1200, "")
+	
+	// 2. Medium (800w)
+	saveVariant(800, "_800w")
 
-	// Encode as WebP
-	if err := imaging.Save(img, optimizedFilePath); err != nil {
-		slog.Error("Error encoding optimized image to WebP", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	// 3. Small (400w)
+	saveVariant(400, "_400w")
+	
 	// --- End Image Optimization ---
 
 	http.Redirect(w, r, "/admin/media", http.StatusSeeOther)

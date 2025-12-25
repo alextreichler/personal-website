@@ -6,7 +6,7 @@ import (
 	"github.com/alextreichler/personal-website/internal/auth"
 )
 
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func AuthMiddleware(isProd bool, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("admin_session")
 		if err != nil || cookie.Value == "" {
@@ -23,8 +23,8 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				Path:     "/",
 				MaxAge:   -1,
 				HttpOnly: true,
-				Secure:   true, // Added for security
-				SameSite: http.SameSiteLaxMode, // Added for CSRF protection
+				Secure:   isProd,
+				SameSite: http.SameSiteLaxMode,
 			})
 			http.Redirect(w, r, "/admin", http.StatusSeeOther)
 			return

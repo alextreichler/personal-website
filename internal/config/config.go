@@ -13,6 +13,7 @@ type Config struct {
 	StaticPath    string
 	SessionSecret string
 	SessionCookie string
+	Env           string
 }
 
 func Load() *Config {
@@ -23,6 +24,7 @@ func Load() *Config {
 		StaticPath:    getEnv("STATIC_PATH", "./web/static"),
 		SessionSecret: getEnv("SESSION_SECRET", "default-insecure-secret-change-me"), // Provide default for dev, warn in prod
 		SessionCookie: getEnv("SESSION_COOKIE_NAME", "admin_session"),
+		Env:           getEnv("APP_ENV", "development"),
 	}
 }
 

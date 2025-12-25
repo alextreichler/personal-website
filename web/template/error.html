@@ -1,9 +1,35 @@
-{{define "title"}}Error{{end}}
+{{define "title"}}Error {{.StatusCode}}{{end}}
 
 {{define "content"}}
-<div style="text-align: center; padding: 50px 0;">
-    <h1>{{.StatusCode}}</h1>
-    <p style="font-size: 1.2rem;">{{.Message}}</p>
-    <p><a href="/" class="button">Go Home</a></p>
+<div class="error-container" style="text-align: center; padding: 100px 20px;">
+    <h1 style="font-size: 6rem; font-weight: 800; margin: 0; color: var(--accent-color); line-height: 1;">
+        {{.StatusCode}}
+    </h1>
+    <p style="font-size: 1.5rem; color: var(--text-color); margin: 20px 0 40px;">
+        {{if eq .StatusCode 404}}
+            Oops! This page seems to have drifted into the void.
+        {{else if eq .StatusCode 500}}
+            Something went wrong on our end. We're looking into it.
+        {{else}}
+            {{.Message}}
+        {{end}}
+    </p>
+    <a href="/" class="btn-home" style="
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: var(--text-color);
+        color: var(--bg-color);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: transform 0.2s, opacity 0.2s;
+    ">Go Back Home</a>
+    
+    <style>
+        .btn-home:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+    </style>
 </div>
 {{end}}

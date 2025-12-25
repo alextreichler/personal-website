@@ -7,19 +7,27 @@ import (
 	"time"
 )
 
-type Post struct {
-	ID        int        `json:"id"`
-	Title     string     `json:"title"`
-	Slug        string     `json:"slug"`
-	Content     string     `json:"content"`
-	HTMLContent string     `json:"html_content"`
-	Status      string     `json:"status"` // "draft" or "published"
-	Views     int        `json:"views"`
-	Tags      []string   `json:"tags"`   // List of tag names
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty"` // For soft delete
+type DashboardStats struct {
+	TotalPosts     int
+	PublishedPosts int
+	DraftPosts     int
+	TotalViews     int
+	TopPosts       []*Post
 }
+
+type Post struct {
+	ID          int
+	Title       string
+	Slug        string
+	Content     string
+	HTMLContent string
+	Status      string // "draft", "published"
+	Tags        []string
+	Views       int
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 
 func (p *Post) ShowUpdated() bool {
 	return p.UpdatedAt.Sub(p.CreatedAt) > 5*time.Minute

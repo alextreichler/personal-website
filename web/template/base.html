@@ -90,21 +90,35 @@
             body.classList.add('dark-mode');
             icon.classList.remove('fa-moon');
             icon.classList.add('fa-sun');
+        } else if (currentTheme === 'retro') {
+            body.classList.add('retro-mode');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-terminal');
         } else if (!currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-             // Optionally set initial state based on system, but allow override
+             // System default to dark if not set, but we handle explicit classes for toggling
+             // This part is tricky with 3 states, sticking to manual toggle logic below is safer
         }
 
         toggleBtn.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            
             if (body.classList.contains('dark-mode')) {
+                // Dark -> Retro
+                body.classList.remove('dark-mode');
+                body.classList.add('retro-mode');
+                localStorage.setItem('theme', 'retro');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-terminal');
+            } else if (body.classList.contains('retro-mode')) {
+                // Retro -> Light
+                body.classList.remove('retro-mode');
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-terminal');
+                icon.classList.add('fa-moon');
+            } else {
+                // Light -> Dark
+                body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark');
                 icon.classList.remove('fa-moon');
                 icon.classList.add('fa-sun');
-            } else {
-                localStorage.setItem('theme', 'light');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
             }
         });
     </script>

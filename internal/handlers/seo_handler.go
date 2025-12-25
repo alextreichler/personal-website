@@ -30,7 +30,8 @@ import (
 }
 
 func (app *App) Sitemap(w http.ResponseWriter, r *http.Request) {
-	posts, err := app.DB.GetPublishedPosts()
+	// Fetch all posts for sitemap (limit 10000)
+	posts, err := app.DB.GetPublishedPosts(10000, 0)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

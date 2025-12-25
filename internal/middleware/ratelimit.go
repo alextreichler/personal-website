@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -58,7 +60,27 @@ func (rl *RateLimiter) cleanup() {
 
 func (rl *RateLimiter) Limit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr // In prod (K8s), you might need X-Forwarded-For
+		// Priority: X-Real-IP > X-Forwarded-For > RemoteAddr
+		ip := r.Header.Get("X-Real-IP")
+		if ip == "" {
+			ip = r.Header.Get("X-Forwarded-For")
+			if ip != "" {
+				// X-Forwarded-For can be a comma-separated list of IPs.
+				// The first one is the original client IP.
+				if i := strings.Index(ip, ","); i != -1 {
+					ip = ip[:i]
+				}
+			}
+		}
+		if ip == "" {
+			// Fallback to RemoteAddr
+			ip = r.RemoteAddr
+			// RemoteAddr usually contains port (e.g., "127.0.0.1:1234"), strip it for consistency
+			if host, _, err := net.SplitHostPort(ip); err == nil {
+				ip = host
+			}
+		}
+
 		limiter := rl.getLimiter(ip)
 		if !limiter.Allow() {
 			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)

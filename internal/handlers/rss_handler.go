@@ -28,7 +28,8 @@ type Item struct {
 }
 
 func (app *App) RSSFeed(w http.ResponseWriter, r *http.Request) {
-	posts, err := app.DB.GetPublishedPosts()
+	// Fetch recent posts for RSS (limit 20)
+	posts, err := app.DB.GetPublishedPosts(20, 0)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

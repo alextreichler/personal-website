@@ -34,6 +34,48 @@ body.dark-mode {
     --code-block-bg: #111111;
 }
 
+/* Retro Theme Variables - Light 80s Pop (Memphis) */
+body.retro-mode {
+    --bg-color: #fcf5ff;      /* Very Light Lavender/Pink */
+    --card-bg: #ffffff;
+    --text-color: #2b1055;    /* Deep Purple */
+    --text-light: #755c99;
+    --accent-color: #ff0055;  /* Hot Pink */
+    --accent-hover: #00e5ff;  /* Cyan */
+    --border-color: #2b1055;  /* Dark borders for contrast */
+    --shadow-color: #00e5ff;  /* Hard Cyan Shadow */
+    --header-bg: rgba(252, 245, 255, 0.95);
+    --code-bg: #f3e5f5;
+    --code-block-bg: #2b1055; /* Dark purple block */
+    
+    --radius-sm: 0px; /* Sharp corners */
+    --radius-md: 0px;
+    
+    --font-sans: 'Courier New', Courier, monospace;
+    --font-serif: 'Times New Roman', Times, serif;
+}
+
+/* Retro Mode specific overrides for that 80s hard-edge look */
+body.retro-mode .post-list-item,
+body.retro-mode button,
+body.retro-mode .site-header nav a:not(.site-logo-link),
+body.retro-mode input,
+body.retro-mode textarea,
+body.retro-mode select {
+    box-shadow: 4px 4px 0px var(--shadow-color) !important;
+    border: 2px solid var(--border-color) !important;
+    transition: all 0.2s ease;
+}
+
+body.retro-mode .post-list-item:hover,
+body.retro-mode button:hover,
+body.retro-mode .site-header nav a:not(.site-logo-link):hover {
+    box-shadow: 6px 6px 0px var(--accent-color) !important;
+    transform: translate(-2px, -2px);
+    background-color: var(--card-bg) !important; /* Keep bg white on hover */
+    color: var(--accent-color) !important;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         /* Default to dark if system pref, unless overridden by specific light class (not impl yet)
@@ -174,12 +216,26 @@ main {
 
 /* Status Labels */
 .status-published {
-    color: #10b981; /* Emerald Green */
+    color: #fff; /* White text for contrast */
+    background-color: #10b981; /* Emerald Green */
+    padding: 4px 10px;
+    border-radius: 20px; /* Pill shape */
     font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-block;
+    min-width: 80px; /* Ensure consistent width */
+    text-align: center;
 }
 .status-draft {
-    color: #ea580c; /* Darker Orange/Rust for readability */
+    color: #fff; /* White text for contrast */
+    background-color: #ea580c; /* Darker Orange/Rust */
+    padding: 4px 10px;
+    border-radius: 20px; /* Pill shape */
     font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-block;
+    min-width: 80px; /* Ensure consistent width */
+    text-align: center;
 }
 
 /* Layout Container - now wraps main content only */
@@ -710,4 +766,31 @@ footer .container {
 
 .editor-statusbar {
     color: var(--text-light) !important;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 50px;
+    font-size: 1.05rem;
+}
+
+.pagination-link {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.pagination-link:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.pagination-info {
+    color: var(--text-light);
 }

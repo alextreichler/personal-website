@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
+	"golang.org/x/net/html"
 )
 
 // Helper to get a configured Goldmark instance
@@ -55,6 +57,9 @@ p := bluemonday.UGCPolicy()
 		
 		// Inject loading="lazy" into images
 		safeHTML = strings.ReplaceAll(safeHTML, "<img ", "<img loading=\"lazy\" ")
+		
+		// Inject srcset for responsive images
+		safeHTML = injectSrcset(safeHTML)
 	}
 
 	// Create description snippet (first 150 chars)
@@ -145,6 +150,7 @@ func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
 		p.AllowAttrs("style").OnElements("pre", "code", "span")
 		safeHTML := p.Sanitize(buf.String())
 		safeHTML = strings.ReplaceAll(safeHTML, "<img ", "<img loading=\"lazy\" ")
+		safeHTML = injectSrcset(safeHTML)
 		post.HTMLContent = safeHTML
 	}
 
@@ -186,6 +192,85 @@ func slugify(s string) string {
 		s = strings.ReplaceAll(s, "--", "-")
 	}
 	return s
+}
+
+// injectSrcset parses the HTML and adds srcset attributes to our optimized images
+func injectSrcset(htmlContent string) string {
+	doc, err := html.Parse(strings.NewReader(htmlContent))
+	if err != nil {
+		return htmlContent // Fallback to original if parsing fails
+	}
+
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "img" {
+			var src string
+			for _, a := range n.Attr {
+				if a.Key == "src" {
+					src = a.Val
+					break
+				}
+			}
+
+			// Check if this is one of our optimized images
+			// Expected format: .../optimized/optimized_UUID.webp
+			if strings.Contains(src, "/optimized/optimized_") && strings.HasSuffix(src, ".webp") {
+				base := strings.TrimSuffix(src, ".webp")
+				
+				// Construct srcset
+				// We have: base.webp (1200w), base_800w.webp, base_400w.webp
+				srcset := fmt.Sprintf("%s_400w.webp 400w, %s_800w.webp 800w, %s.webp 1200w", base, base, base)
+				
+				// Add srcset attribute
+				n.Attr = append(n.Attr, html.Attribute{Key: "srcset", Val: srcset})
+				
+				// Add sizes attribute
+				sizes := "(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px"
+				n.Attr = append(n.Attr, html.Attribute{Key: "sizes", Val: sizes})
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+
+	var buf bytes.Buffer
+	if err := html.Render(&buf, doc); err != nil {
+		return htmlContent
+	}
+	
+	// html.Render wraps content in <html><head></head><body>...</body></html> if it's a full doc,
+	// or just nodes. Since we parsed a fragment (likely), html.Parse might add html/body tags.
+	// Let's check. html.Parse usually expects a full doc.
+	// For fragments, we should traverse the body's children.
+	// However, simple hack: render and strip the tags if they were added, or just return the body content.
+	// Actually, for post content, it's a fragment. html.Parse will put it in <html><body>...
+	
+	// Correct approach for fragment:
+	// Find <body> and render its children
+	var body *html.Node
+	var findBody func(*html.Node)
+	findBody = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "body" {
+			body = n
+			return
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			findBody(c)
+		}
+	}
+	findBody(doc)
+	
+	if body != nil {
+		var bodyBuf bytes.Buffer
+		for c := body.FirstChild; c != nil; c = c.NextSibling {
+			html.Render(&bodyBuf, c)
+		}
+		return bodyBuf.String()
+	}
+
+	return buf.String()
 }
 
 func (app *App) AdminEditPost(w http.ResponseWriter, r *http.Request) {
@@ -275,6 +360,7 @@ func (app *App) AdminUpdatePost(w http.ResponseWriter, r *http.Request) {
 		p.AllowAttrs("style").OnElements("pre", "code", "span")
 		safeHTML := p.Sanitize(buf.String())
 		safeHTML = strings.ReplaceAll(safeHTML, "<img ", "<img loading=\"lazy\" ")
+		safeHTML = injectSrcset(safeHTML)
 		post.HTMLContent = safeHTML
 	}
 	

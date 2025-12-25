@@ -30,19 +30,20 @@ import (
 				})
 			
 				// Protected Admin Routes
-				mux.HandleFunc("GET /admin/dashboard", middleware.AuthMiddleware(app.AdminDashboard))
-				mux.HandleFunc("GET /admin/posts", middleware.AuthMiddleware(app.AdminListPosts))
-				mux.HandleFunc("GET /admin/posts/new", middleware.AuthMiddleware(app.AdminNewPost))
-				mux.HandleFunc("POST /admin/posts/new", middleware.AuthMiddleware(app.AdminCreatePost))
-				mux.HandleFunc("GET /admin/posts/edit", middleware.AuthMiddleware(app.AdminEditPost))
-				mux.HandleFunc("POST /admin/posts/edit", middleware.AuthMiddleware(app.AdminUpdatePost))
-				mux.HandleFunc("POST /admin/posts/delete", middleware.AuthMiddleware(app.AdminDeletePost))
+				isProd := app.Config.Env == "production"
+				mux.HandleFunc("GET /admin/dashboard", middleware.AuthMiddleware(isProd, app.AdminDashboard))
+				mux.HandleFunc("GET /admin/posts", middleware.AuthMiddleware(isProd, app.AdminListPosts))
+				mux.HandleFunc("GET /admin/posts/new", middleware.AuthMiddleware(isProd, app.AdminNewPost))
+				mux.HandleFunc("POST /admin/posts/new", middleware.AuthMiddleware(isProd, app.AdminCreatePost))
+				mux.HandleFunc("GET /admin/posts/edit", middleware.AuthMiddleware(isProd, app.AdminEditPost))
+				mux.HandleFunc("POST /admin/posts/edit", middleware.AuthMiddleware(isProd, app.AdminUpdatePost))
+				mux.HandleFunc("POST /admin/posts/delete", middleware.AuthMiddleware(isProd, app.AdminDeletePost))
 			
-				mux.HandleFunc("GET /admin/about", middleware.AuthMiddleware(app.AdminEditAbout))
-				mux.HandleFunc("POST /admin/about", middleware.AuthMiddleware(app.AdminUpdateAbout))
+				mux.HandleFunc("GET /admin/about", middleware.AuthMiddleware(isProd, app.AdminEditAbout))
+				mux.HandleFunc("POST /admin/about", middleware.AuthMiddleware(isProd, app.AdminUpdateAbout))
 			
-				mux.HandleFunc("GET /admin/media", middleware.AuthMiddleware(app.AdminMediaManager))
-				mux.HandleFunc("POST /admin/media/upload", middleware.AuthMiddleware(app.AdminUploadImage))
+				mux.HandleFunc("GET /admin/media", middleware.AuthMiddleware(isProd, app.AdminMediaManager))
+				mux.HandleFunc("POST /admin/media/upload", middleware.AuthMiddleware(isProd, app.AdminUploadImage))
 			
 				// Static File Server with Cache Headers
 				fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir(app.Config.StaticPath)))
@@ -53,11 +54,13 @@ import (
 				}))
 			
 				// Apply Middleware Chain
-				// Flow: Request -> Metrics -> Gzip -> Security -> CSRF -> Mux
+				// Flow: Request -> Metrics -> Gzip -> Security -> CSRF -> ETag -> Mux
 				return middleware.MetricsMiddleware(
 					middleware.GzipMiddleware(
 						middleware.SecurityHeadersMiddleware(
-							middleware.CSRFMiddleware(mux),
+							middleware.CSRFMiddleware(isProd)(
+								middleware.ETagMiddleware(mux),
+							),
 						),
 					),
 				)

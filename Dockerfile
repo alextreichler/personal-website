@@ -17,6 +17,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o personal-website ./cmd/server
 # Run Stage
 FROM alpine:latest
 
+# Create a non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 WORKDIR /app
 
 # Copy the binary from the builder stage
@@ -25,9 +28,12 @@ COPY --from=builder /app/personal-website .
 # Copy web assets (templates, static files)
 COPY web ./web
 
+# Create necessary directories with correct permissions
+RUN mkdir -p data web/static/uploads && \
+    chown -R appuser:appgroup /app
 
-# Create a directory for the SQLite database
-RUN mkdir -p data
+# Switch to non-root user
+USER appuser
 
 # Expose the port the app runs on
 EXPOSE 8080

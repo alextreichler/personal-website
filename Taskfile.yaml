@@ -1,10 +1,11 @@
 version: '3'
 
 vars:
-  # Updated image name to match the project repository
   IMAGE_NAME: ghcr.io/alextreichler/personal-website
-  TAG: latest
   BINARY_NAME: personal-website
+  # Use git describe to get a version string (e.g., v1.0.0-3-g123abc) or fallback to short hash
+  VERSION: 
+    sh: git describe --tags --always --dirty 2>/dev/null || git rev-parse --short HEAD
 
 tasks:
   default:
@@ -29,13 +30,24 @@ tasks:
       - rm -rf bin/
 
   image:
-    desc: Build the container image using Docker
+    desc: Build the container image with version and latest tags
     cmds:
-      - docker build -t {{.IMAGE_NAME}}:{{.TAG}} .
+      - echo "Building Docker image {{.IMAGE_NAME}}:{{.VERSION}}"
+      - docker build -t {{.IMAGE_NAME}}:{{.VERSION}} -t {{.IMAGE_NAME}}:latest .
 
   push:
-    desc: Push the container image to GHCR
+    desc: Push the container image to registry
     deps: [image]
     cmds:
-      - echo "Pushing to {{.IMAGE_NAME}}:{{.TAG}}"
-      - docker push {{.IMAGE_NAME}}:{{.TAG}}
+      - echo "Pushing {{.IMAGE_NAME}}:{{.VERSION}}"
+      - docker push {{.IMAGE_NAME}}:{{.VERSION}}
+      - echo "Pushing {{.IMAGE_NAME}}:latest"
+      - docker push {{.IMAGE_NAME}}:latest
+
+  release:
+    desc: Full release flow: Test -> Build Image -> Push
+    cmds:
+      # Optional: Add a test step here if you want to enforce tests before release
+      # - task: test
+      - task: push
+      - echo "Release {{.VERSION}} pushed successfully!"

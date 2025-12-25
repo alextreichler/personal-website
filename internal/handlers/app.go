@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/alextreichler/personal-website/internal/auth"
@@ -113,12 +114,28 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := app.DB.GetPublishedPosts()
+	// Pagination
+	pageStr := r.URL.Query().Get("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit := 5
+	offset := (page - 1) * limit
+
+	posts, err := app.DB.GetPublishedPosts(limit, offset)
 	if err != nil {
 		slog.Error("Error fetching posts", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
+	totalPosts, err := app.DB.CountPublishedPosts()
+	if err != nil {
+		slog.Error("Error counting posts", "error", err)
+		// Non-fatal, proceed with whatever we have
+	}
+	totalPages := (totalPosts + limit - 1) / limit
 
 	aboutContent, err := app.DB.GetSetting("about")
 	if err != nil {
@@ -147,6 +164,12 @@ func (app *App) Home(w http.ResponseWriter, r *http.Request) {
 		"AboutHTML":       template.HTML(safeAboutHTML),
 		"PageTitle":       "Home",
 		"MetaDescription": "Welcome to the personal website and blog of Alex Treichler. Read my latest thoughts on technology and more.",
+		"CurrentPage":     page,
+		"TotalPages":      totalPages,
+		"HasNext":         page < totalPages,
+		"HasPrev":         page > 1,
+		"NextPage":        page + 1,
+		"PrevPage":        page - 1,
 	}
 
 	app.Render(w, r, "home.html", data)

@@ -96,9 +96,55 @@ func (d *Database) GetAllPosts() ([]*models.Post, error) {
 	return posts, nil
 }
 
-func (d *Database) GetPublishedPosts() ([]*models.Post, error) {
-	query := `SELECT id, title, slug, content, html_content, status, created_at, updated_at FROM posts WHERE deleted_at IS NULL AND status = 'published' ORDER BY created_at DESC`
+func (d *Database) GetDashboardStats() (*models.DashboardStats, error) {
+	stats := &models.DashboardStats{}
+
+	// Total Posts
+	err := d.Conn.QueryRow("SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL").Scan(&stats.TotalPosts)
+	if err != nil {
+		return nil, err
+	}
+
+	// Published Posts
+	err = d.Conn.QueryRow("SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL AND status = 'published'").Scan(&stats.PublishedPosts)
+	if err != nil {
+		return nil, err
+	}
+
+	// Draft Posts
+	stats.DraftPosts = stats.TotalPosts - stats.PublishedPosts
+
+	// Total Views
+	// Handle NULL if no posts exist
+	var totalViews sql.NullInt64
+	err = d.Conn.QueryRow("SELECT SUM(views) FROM posts WHERE deleted_at IS NULL").Scan(&totalViews)
+	if err != nil {
+		return nil, err
+	}
+	stats.TotalViews = int(totalViews.Int64)
+
+	// Top 5 Posts
+	query := `SELECT id, title, slug, views, created_at FROM posts WHERE deleted_at IS NULL AND status = 'published' ORDER BY views DESC LIMIT 5`
 	rows, err := d.Conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		post := &models.Post{}
+		if err := rows.Scan(&post.ID, &post.Title, &post.Slug, &post.Views, &post.CreatedAt); err != nil {
+			return nil, err
+		}
+		stats.TopPosts = append(stats.TopPosts, post)
+	}
+
+	return stats, nil
+}
+
+func (d *Database) GetPublishedPosts(limit, offset int) ([]*models.Post, error) {
+	query := `SELECT id, title, slug, content, html_content, status, created_at, updated_at FROM posts WHERE deleted_at IS NULL AND status = 'published' ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	rows, err := d.Conn.Query(query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +166,13 @@ func (d *Database) GetPublishedPosts() ([]*models.Post, error) {
 		posts = append(posts, post)
 	}
 	return posts, nil
+}
+
+func (d *Database) CountPublishedPosts() (int, error) {
+	query := `SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL AND status = 'published'`
+	var count int
+	err := d.Conn.QueryRow(query).Scan(&count)
+	return count, err
 }
 
 func (d *Database) SearchPosts(query string) ([]*models.Post, error) {

@@ -44,8 +44,8 @@ func (app *App) LoginPost(w http.ResponseWriter, r *http.Request) {
 		Value:    signedValue,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true, // Added for security
-		SameSite: http.SameSiteLaxMode, // Added for CSRF protection
+		Secure:   app.Config.Env == "production",
+		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(24 * time.Hour),
 	})
 
@@ -59,8 +59,8 @@ func (app *App) Logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
-		Secure:   true, // Added for security
-		SameSite: http.SameSiteLaxMode, // Added for CSRF protection
+		Secure:   app.Config.Env == "production",
+		SameSite: http.SameSiteLaxMode,
 	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
