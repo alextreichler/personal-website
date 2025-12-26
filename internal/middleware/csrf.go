@@ -36,7 +36,7 @@ func CSRFMiddleware(isProd bool) func(http.Handler) http.Handler {
 					Path:     "/",
 					HttpOnly: true,
 					Secure:   isProd,
-					SameSite: http.SameSiteStrictMode,
+					SameSite: http.SameSiteLaxMode,
 				})
 			}
 
