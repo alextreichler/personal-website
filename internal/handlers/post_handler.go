@@ -94,7 +94,8 @@ func (app *App) AdminListPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) AdminNewPost(w http.ResponseWriter, r *http.Request) {
-	app.Render(w, r, "admin_post_new.html", nil)
+	data := make(map[string]interface{})
+	app.Render(w, r, "admin_post_new.html", data)
 }
 
 func (app *App) AdminCreatePost(w http.ResponseWriter, r *http.Request) {
